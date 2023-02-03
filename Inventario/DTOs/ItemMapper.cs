@@ -67,23 +67,5 @@ namespace Inventario.DTOs
                 AddDate = itemDTO.AddDate
             };
         }
-
-        public static void UpdateItem(Item item, ItemDTO itemDTO)
-        {
-            item.Name = itemDTO.Name;
-            item.Description = itemDTO.Description;
-            item.Quantity = itemDTO.Quantity;
-            item.IdCategory = itemDTO.IdCategory;
-            item.Brand = itemDTO.Brand;
-            item.IdModel = itemDTO.IdModel;
-            item.SerialNumber = itemDTO.SerialNumber;
-            item.Location = itemDTO.Location;
-            item.Status = itemDTO.Status;
-            item.Notes = itemDTO.Notes;
-            item.Stock = itemDTO.Stock;
-            item.Price = itemDTO.Price;
-            item.LastUpdated = itemDTO.LastUpdated;
-            item.AddDate = itemDTO.AddDate;
-        }
     }
 }

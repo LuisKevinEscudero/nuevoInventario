@@ -103,16 +103,75 @@ namespace Inventario.Controllers.API
         [HttpPut]
         public IHttpActionResult UpdateItem(int id, ItemDTO itemDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
             var itemInDb = _context.Items.SingleOrDefault(i => i.Id == id);
 
             if (itemInDb == null)
                 return NotFound();
 
-            ItemMapper.UpdateItem(itemInDb, itemDTO);
+            if (!string.IsNullOrEmpty(itemDTO.Name))
+                itemInDb.Name = itemDTO.Name;
 
+            if (!string.IsNullOrEmpty(itemDTO.Description))
+                itemInDb.Description = itemDTO.Description;
+
+            if (itemDTO.Quantity > 0)
+                itemInDb.Quantity = itemDTO.Quantity;
+
+            if (itemDTO.IdCategory > 0)
+            {
+                var category = _context.ItemCategories.SingleOrDefault(c => c.Id == itemDTO.IdCategory);
+                if (category != null)
+                    itemInDb.Category = category;
+            }
+
+            if (!string.IsNullOrEmpty(itemDTO.Brand))
+                itemInDb.Brand = itemDTO.Brand;
+
+            if (itemDTO.IdModel > 0)
+            {
+                var model = _context.itemModels.SingleOrDefault(m => m.Id == itemDTO.IdModel);
+                if (model != null)
+                    itemInDb.Model = model;
+            }
+
+            if (!string.IsNullOrEmpty(itemDTO.SerialNumber))
+                itemInDb.SerialNumber = itemDTO.SerialNumber;
+
+            if (!string.IsNullOrEmpty(itemDTO.Location))
+                itemInDb.Location = itemDTO.Location;
+
+            if (!string.IsNullOrEmpty(itemDTO.Status))
+                itemInDb.Status = itemDTO.Status;
+
+            if (!string.IsNullOrEmpty(itemDTO.Notes))
+                itemInDb.Notes = itemDTO.Notes;
+
+            if (itemDTO.Stock > 0)
+                itemInDb.Stock = itemDTO.Stock;
+
+            if (itemDTO.Price > 0)
+                itemInDb.Price = itemDTO.Price;
+
+            if (itemDTO.LastUpdated != default(DateTime))
+                itemInDb.LastUpdated = itemDTO.LastUpdated;
+
+            if (itemDTO.AddDate != default(DateTime))
+                itemInDb.AddDate = itemDTO.AddDate;
+
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteItem(int id)
+        {
+            var itemInDb = _context.Items.SingleOrDefault(i => i.Id == id);
+
+            if (itemInDb == null)
+                return NotFound();
+
+            _context.Items.Remove(itemInDb);
             _context.SaveChanges();
 
             return Ok();

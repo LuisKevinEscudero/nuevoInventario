@@ -27,11 +27,10 @@ namespace Inventario.Controllers
 
         public ActionResult Index()
         {
-            var items = _context.Items;
-            var itemViewModel = new ItemViewModel();
-            itemViewModel.items = items.ToList();
-
-            return View(itemViewModel);
+            if (User.IsInRole(RoleName.Admin))
+                return View("List");
+            else
+                return View("ReadOnlyList");
         }
 
 
@@ -48,6 +47,7 @@ namespace Inventario.Controllers
             return View(item);
         }
 
+        [Authorize(Roles = RoleName.Admin)]
         public ActionResult New()
         {
             var itemModels = _context.itemModels.ToList();

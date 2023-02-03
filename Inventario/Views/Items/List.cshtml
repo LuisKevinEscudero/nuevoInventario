@@ -1,0 +1,70 @@
+﻿@model Inventario.ViewModels.ItemViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+@Html.ActionLink("New Item", "New", "Items", null, new { @class = "btn btn-primary" })
+<table id="items" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function(){
+
+            var table= $("#items").DataTable({
+                ajax: {
+                    url: "/api/items",
+                    dataSrc: ""
+                },
+                columns: [
+                    {
+                        data: "Name",
+                        render: function (data, type, item) {
+                            return "<a href='/Items/Detail/" + item.Id + "'>" + item.Name + "</a>";
+                        }
+                    },
+                    {
+                        data: "Name", 
+                        render: function (data, type, item) {
+                            return "<a href='/Items/Edit/" + item.Id + "'>Edit</a>";
+                        }
+                    },
+                    {
+                        data: "Id",
+                        render: function (data) {
+                            return "<button class='btn-link js-delete' data-item-id=" + data + ">Delete</button>";
+                        }
+                    }
+                ]
+            });
+
+            $("#items").on("click", ".js-delete", function () {
+                var button = $(this);
+                bootbox.confirm("Are you sure to Delete this Item?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/items/" + button.attr("data-item-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                            }
+                        }); 
+                    }
+                });
+
+            });
+        });
+    </script>    
+}
