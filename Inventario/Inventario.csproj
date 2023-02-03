@@ -213,7 +213,10 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ItemsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="DTOs\ItemCategoryDTO.cs" />
     <Compile Include="DTOs\ItemDTO.cs" />
+    <Compile Include="DTOs\ItemMapper.cs" />
+    <Compile Include="DTOs\ItemModelDTO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
