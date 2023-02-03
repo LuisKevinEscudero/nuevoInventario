@@ -1,0 +1,42 @@
+﻿@model Inventario.Models.Item
+@{
+    ViewBag.Title = "Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.Name</h2>
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Serial Number</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Stock</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.Name</td>
+            <td>@Model.Description</td>
+            <td>@Model.Quantity</td>
+            <td>@Model.Category.Name</td>
+            <td>@Model.Brand</td>
+            <td>@Model.Model.Name</td>
+            <td>@Model.SerialNumber</td>
+            <td>@Model.Location</td>
+            <td>@Model.Status</td>
+            <td>@Model.Notes</td>
+            <td>@Model.Stock</td>
+            <td>@Model.Price</td>
+        </tr>
+    </tbody>
+</table>
+

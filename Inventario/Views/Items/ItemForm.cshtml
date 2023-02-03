@@ -1,0 +1,80 @@
+﻿@model Inventario.ViewModels.ItemFormViewModel
+@{
+    ViewBag.Title = "New";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Item</h2>
+
+@using (Html.BeginForm("Save", "Items"))
+{
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Name)
+        @Html.TextBoxFor(m => m.Item.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Name)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.IdModel)
+        @Html.DropDownListFor(m => m.Item.IdModel, new SelectList(Model.ItemModels, "Id", "Name"), "Select Model", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.IdModel)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.IdCategory)
+        @Html.DropDownListFor(m => m.Item.IdCategory, new SelectList(Model.ItemCategories, "Id", "Name"), "Select Category", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.IdCategory)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Description)
+        @Html.TextAreaFor(m => m.Item.Description, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Description)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Brand)
+        @Html.TextBoxFor(m => m.Item.Brand, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Brand)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.SerialNumber)
+        @Html.TextBoxFor(m => m.Item.SerialNumber, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.SerialNumber)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Status)
+        @Html.TextBoxFor(m => m.Item.Status, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Status)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Location)
+        @Html.DropDownListFor(m => m.Item.Location, new SelectList(new[] { "Location1", "Location2", "Location3", "Location4", "Location5" }), "--Select Location--", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Location)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Stock)
+        @Html.TextBoxFor(m => m.Item.Stock, new { @class = "form-control", type = "number" })
+        @Html.ValidationMessageFor(m => m.Item.Stock)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Price)
+        @Html.TextBoxFor(m => m.Item.Price, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Price)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Quantity)
+        @Html.TextBoxFor(m => m.Item.Quantity, new { @class = "form-control", type = "number" })
+        @Html.ValidationMessageFor(m => m.Item.Quantity)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Item.Notes)
+        @Html.TextAreaFor(m => m.Item.Notes, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Item.Notes)
+    </div>
+
+    @Html.HiddenFor(m => m.Item.Id)
+
+    @Html.AntiForgeryToken()
+
+    <button type="submit" class="btn btn-primary">Save</button>
+}
+
+
+
