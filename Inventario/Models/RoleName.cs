@@ -5,7 +5,8 @@ using System.Web;
 
 namespace Inventario.Models
 {
-    public class RolaName
+    public static class RoleName
     {
+        public const string Admin = "Admin";
     }
 }

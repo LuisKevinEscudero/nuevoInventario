@@ -66,6 +66,7 @@ namespace Inventario.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleName.Admin)]
         public ActionResult Save(Item item)
         {
             if (!ModelState.IsValid)
@@ -131,6 +132,8 @@ namespace Inventario.Controllers
             return RedirectToAction("Index", "Items");
         }
 
+
+        [Authorize(Roles = RoleName.Admin)]
         public ActionResult Edit(int id)
         {
             var item = _context.Items.SingleOrDefault(i => i.Id == id);

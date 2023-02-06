@@ -45,6 +45,7 @@ namespace Inventario.Controllers.API
         }
 
         [HttpPost]
+        [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult CreateItem(ItemDTO itemDTO)
         {
             if (!ModelState.IsValid)
@@ -101,6 +102,7 @@ namespace Inventario.Controllers.API
         }*/
 
         [HttpPut]
+        [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult UpdateItem(int id, ItemDTO itemDTO)
         {
             var itemInDb = _context.Items.SingleOrDefault(i => i.Id == id);
@@ -164,6 +166,7 @@ namespace Inventario.Controllers.API
         }
 
         [HttpDelete]
+        [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult DeleteItem(int id)
         {
             var itemInDb = _context.Items.SingleOrDefault(i => i.Id == id);

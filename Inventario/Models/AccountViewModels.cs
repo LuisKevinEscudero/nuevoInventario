@@ -8,6 +8,10 @@ namespace Inventario.Models
         [Required]
         [Display(Name = "Correo electrónico")]
         public string Email { get; set; }
+
+        [Required]
+        [Display(Name = "DNI")]
+        public string DNI { get; set; }
     }
 
     public class ExternalLoginListViewModel
@@ -64,6 +68,10 @@ namespace Inventario.Models
 
     public class RegisterViewModel
     {
+        [Required]
+        [Display(Name = "DNI")]
+        public string DNI { get; set; }
+
         [Required]
         [EmailAddress]
         [Display(Name = "Correo electrónico")]

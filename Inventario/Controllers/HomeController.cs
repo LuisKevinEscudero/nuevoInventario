@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Inventario.Models;
+using Inventario.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,9 +10,21 @@ namespace Inventario.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public HomeController()
+        {
+            _context = new ApplicationDbContext();
+        }
+
         public ActionResult Index()
         {
-            return View();
+            var items = _context.Items.ToList();
+            var viewModel = new ItemViewModel
+            {
+                items = items
+            };
+            return View(viewModel);
         }
 
         public ActionResult About()

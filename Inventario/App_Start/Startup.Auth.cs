@@ -58,11 +58,11 @@ namespace Inventario
             //   appId: "",
             //   appSecret: "");
 
-            //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
-            //{
-            //    ClientId = "",
-            //    ClientSecret = ""
-            //});
+            app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
+            {
+                ClientId = "885554423424-rjue6lglms778l3s2hoi2kb42218ccl0.apps.googleusercontent.com",
+                ClientSecret = "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"
+            });
         }
     }
 }

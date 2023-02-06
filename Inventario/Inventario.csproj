@@ -47,6 +47,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -138,9 +141,6 @@
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
@@ -256,6 +256,14 @@
     <Compile Include="Migrations\202302031820209_seedUsers.designer.cs">
       <DependentUpon>202302031820209_seedUsers.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202302060823429_addDNItoApplicationUser.cs" />
+    <Compile Include="Migrations\202302060823429_addDNItoApplicationUser.designer.cs">
+      <DependentUpon>202302060823429_addDNItoApplicationUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202302061114041_addingMultipleRecordsToDatabase.cs" />
+    <Compile Include="Migrations\202302061114041_addingMultipleRecordsToDatabase.designer.cs">
+      <DependentUpon>202302061114041_addingMultipleRecordsToDatabase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
@@ -264,6 +272,7 @@
     <Compile Include="Models\ItemCategory.cs" />
     <Compile Include="Models\ItemModel.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\RoleName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\ItemFormViewModel.cs" />
@@ -611,6 +620,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202302031820209_seedUsers.resx">
       <DependentUpon>202302031820209_seedUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202302060823429_addDNItoApplicationUser.resx">
+      <DependentUpon>202302060823429_addDNItoApplicationUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202302061114041_addingMultipleRecordsToDatabase.resx">
+      <DependentUpon>202302061114041_addingMultipleRecordsToDatabase.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
