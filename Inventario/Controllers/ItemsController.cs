@@ -7,22 +7,23 @@ using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
 using System.IO;
+using Inventario.UnitOfWork;
+using System.Web.Configuration;
 
 namespace Inventario.Controllers
 {
     public class ItemsController : Controller
     {
 
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ItemsController()
+        /*public ItemsController()
         {
-            _context = new ApplicationDbContext();
-        }
-
-        protected override void Dispose(bool disposing)
+            _unitOfWork = new UnitOfWork.UnitOfWork(new ApplicationDbContext());
+        }*/
+        public ItemsController(IUnitOfWork unitOfWork)
         {
-            _context.Dispose();
+            _unitOfWork = unitOfWork;
         }
 
         public ActionResult Index()
@@ -33,35 +34,35 @@ namespace Inventario.Controllers
                 return View("ReadOnlyList");
         }
 
-
         public ActionResult Detail(int id)
         {
-            var item = _context.Items
-                .Include(m => m.Model)
-                .Include(c=>c.Category)
-                .SingleOrDefault(i => i.Id == id);
-
+            var item = _unitOfWork.ItemRepository.Get(id);
             if (item == null)
                 return HttpNotFound();
 
             return View(item);
         }
 
+
+
         [Authorize(Roles = RoleName.Admin)]
         public ActionResult New()
         {
-            var itemModels = _context.itemModels.ToList();
-            var itemCategories = _context.ItemCategories.ToList();
+            var itemModels = _unitOfWork.ItemModelRepository.GetAll();
+            var itemCategories = _unitOfWork.ItemCategoryRepository.GetAll();
 
             var viewModel = new ItemFormViewModel
             {
                 Item = new Item(),
-                ItemModels = itemModels,
-                ItemCategories = itemCategories
+                ItemModels = (List<ItemModel>)itemModels,
+                ItemCategories = (List<ItemCategory>)itemCategories
             };
 
             return View("ItemForm", viewModel);
         }
+
+
+
 
 
         [HttpPost]
@@ -82,12 +83,13 @@ namespace Inventario.Controllers
                         }
                     }
                 }
+                
 
                 var viewModel = new ItemFormViewModel
                 {
                     Item = item,
-                    ItemModels = _context.itemModels.ToList(),
-                    ItemCategories = _context.ItemCategories.ToList()
+                    ItemModels = _unitOfWork.ItemModelRepository.GetAll().ToList(),
+                    ItemCategories = _unitOfWork.ItemCategoryRepository.GetAll().ToList()
                 };
 
                 return View("ItemForm", viewModel);
@@ -96,21 +98,19 @@ namespace Inventario.Controllers
 
             if (item.Id == 0)
             {
-                var model = _context.itemModels.ToList();
-                var category = _context.ItemCategories.ToList();
-
-                item.Model = model[item.IdModel - 1];
-                item.Category = category[item.IdCategory - 1];
+                item.Model = _unitOfWork.ItemModelRepository.Get(item.IdModel);
+                item.Category = _unitOfWork.ItemCategoryRepository.Get(item.IdCategory);
                 item.AddDate = DateTime.Now;
                 item.LastUpdated = DateTime.Now;
-                _context.Items.Add(item);
+                _unitOfWork.ItemRepository.Add(item);
             }
             else
             {
-                var itemInDb = _context.Items.Single(i => i.Id == item.Id);
-                var modelInDb = _context.itemModels.Single(m => m.Id == item.IdModel);
-                var categoryInDb = _context.ItemCategories.Single(c => c.Id == item.IdCategory);
-                
+                var itemInDb = _unitOfWork.ItemRepository.Get(item.Id);
+                var modelInDb = _unitOfWork.ItemModelRepository.Get(item.IdModel);
+                var categoryInDb = _unitOfWork.ItemCategoryRepository.Get(item.IdCategory);
+
+
                 itemInDb.Name = item.Name;
                 itemInDb.Description = item.Description;
                 itemInDb.Model = modelInDb;
@@ -127,7 +127,7 @@ namespace Inventario.Controllers
                 itemInDb.Quantity = item.Quantity;
             }
 
-            _context.SaveChanges();
+            _unitOfWork.Save();
 
             return RedirectToAction("Index", "Items");
         }
@@ -136,7 +136,7 @@ namespace Inventario.Controllers
         [Authorize(Roles = RoleName.Admin)]
         public ActionResult Edit(int id)
         {
-            var item = _context.Items.SingleOrDefault(i => i.Id == id);
+            var item = _unitOfWork.ItemRepository.Get(id);
 
             if (item == null)
                 return HttpNotFound();
@@ -144,11 +144,12 @@ namespace Inventario.Controllers
             var viewModel = new ItemFormViewModel
             {
                 Item = item,
-                ItemModels = _context.itemModels.ToList(),
-                ItemCategories = _context.ItemCategories.ToList()
+                ItemModels = (List<ItemModel>)_unitOfWork.ItemModelRepository.GetAll(),
+                ItemCategories = (List<ItemCategory>)_unitOfWork.ItemCategoryRepository.GetAll()
             };
 
             return View("ItemForm", viewModel);
         }
+
     }
 }

@@ -7,25 +7,31 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data.Entity;
+using Inventario.UnitOfWork;
 
 namespace Inventario.Controllers.API
 {
     public class ItemsController : ApiController
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ItemsController()
+         /*public ItemsController()
+         {
+             _unitOfWork = new UnitOfWork.UnitOfWork(new ApplicationDbContext());
+         }*/
+
+        public ItemsController(IUnitOfWork unitOfWork)
         {
-            _context = new ApplicationDbContext();
+            _unitOfWork = unitOfWork;
         }
+
 
         [HttpGet]
         public IHttpActionResult GetItems()
         {
-            var items = _context.Items
-                .Include(m => m.Model)
-                .Include(c => c.Category)
-                .ToList().Select(ItemMapper.ToDTO);
+            var items = _unitOfWork.ItemRepository
+                .GetAll()
+                .Select(ItemMapper.ToDTO);
             
             return Ok(items);
         }
@@ -33,10 +39,7 @@ namespace Inventario.Controllers.API
         [HttpGet]
         public IHttpActionResult GetItem(int id)
         {
-            var item = _context.Items
-                .Include(m => m.Model)
-                .Include(c => c.Category)
-                .SingleOrDefault(i => i.Id == id);
+            var item = _unitOfWork.ItemRepository.Get(id);
            
             if (item == null)
                 return NotFound();
@@ -53,8 +56,8 @@ namespace Inventario.Controllers.API
 
             var item = ItemMapper.ToItem(itemDTO);
 
-            var categoryList = _context.ItemCategories.ToList();
-            var modelList = _context.itemModels.ToList();
+            var categoryList = _unitOfWork.ItemCategoryRepository.GetAll();
+            var modelList = _unitOfWork.ItemModelRepository.GetAll();
 
             var category = categoryList.SingleOrDefault(c => c.Id == item.IdCategory);
             var model = modelList.SingleOrDefault(m => m.Id == item.IdModel);
@@ -70,8 +73,8 @@ namespace Inventario.Controllers.API
 
             itemDTO.Id = item.Id;
 
-            _context.Items.Add(item);
-            _context.SaveChanges();
+            _unitOfWork.ItemRepository.Add(item);
+            _unitOfWork.Save();
 
             itemDTO.Id = item.Id;
             
@@ -105,7 +108,8 @@ namespace Inventario.Controllers.API
         [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult UpdateItem(int id, ItemDTO itemDTO)
         {
-            var itemInDb = _context.Items.SingleOrDefault(i => i.Id == id);
+
+            var itemInDb = _unitOfWork.ItemRepository.Get(id);
 
             if (itemInDb == null)
                 return NotFound();
@@ -121,7 +125,8 @@ namespace Inventario.Controllers.API
 
             if (itemDTO.IdCategory > 0)
             {
-                var category = _context.ItemCategories.SingleOrDefault(c => c.Id == itemDTO.IdCategory);
+
+                var category = _unitOfWork.ItemCategoryRepository.Get(itemDTO.IdCategory);
                 if (category != null)
                     itemInDb.Category = category;
             }
@@ -131,7 +136,8 @@ namespace Inventario.Controllers.API
 
             if (itemDTO.IdModel > 0)
             {
-                var model = _context.itemModels.SingleOrDefault(m => m.Id == itemDTO.IdModel);
+
+                var model = _unitOfWork.ItemModelRepository.Get(itemDTO.IdModel);
                 if (model != null)
                     itemInDb.Model = model;
             }
@@ -160,7 +166,8 @@ namespace Inventario.Controllers.API
             if (itemDTO.AddDate != default(DateTime))
                 itemInDb.AddDate = itemDTO.AddDate;
 
-            _context.SaveChanges();
+
+            _unitOfWork.Save();
 
             return Ok();
         }
@@ -169,13 +176,16 @@ namespace Inventario.Controllers.API
         [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult DeleteItem(int id)
         {
-            var itemInDb = _context.Items.SingleOrDefault(i => i.Id == id);
+
+            var itemInDb = _unitOfWork.ItemRepository.Get(id);
 
             if (itemInDb == null)
                 return NotFound();
 
-            _context.Items.Remove(itemInDb);
-            _context.SaveChanges();
+
+            _unitOfWork.ItemRepository.Delete(itemInDb);
+
+            _unitOfWork.Save();
 
             return Ok();
         }
