@@ -21,13 +21,14 @@ namespace Inventario
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var builder = new ContainerBuilder();
+            /*var builder = new ContainerBuilder();
             builder.RegisterType<ApplicationDbContext>().AsSelf();
             builder.RegisterType<UnitOfWork.UnitOfWork>().As<IUnitOfWork>();
             builder.RegisterType<ItemsController>().AsSelf();
             var container = builder.Build();
 
-            var controller = container.Resolve<ItemsController>();
+            var controller = container.Resolve<ItemsController>();*/
+            services.AddSingleton<IUnitOfWork>(new UnitOfWork.UnitOfWork(new ApplicationDbContext()));
         }
 
     }

@@ -59,6 +59,9 @@
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.7.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.7.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.7.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
@@ -250,6 +253,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ItemsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="DefaultDependencyResolver.cs" />
     <Compile Include="DTOs\ItemCategoryDTO.cs" />
     <Compile Include="DTOs\ItemDTO.cs" />
     <Compile Include="DTOs\ItemMapper.cs" />
@@ -257,6 +261,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Lifetime.cs" />
     <Compile Include="Migrations\202302011550241_initial.cs" />
     <Compile Include="Migrations\202302011550241_initial.designer.cs">
       <DependentUpon>202302011550241_initial.cs</DependentUpon>
@@ -321,6 +326,7 @@
     <Compile Include="Repository\ItemCategoryRepository.cs" />
     <Compile Include="Repository\ItemModelRepository.cs" />
     <Compile Include="Repository\ItemRepository.cs" />
+    <Compile Include="ServiceProviderExtensions.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="UnitOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitOfWork\UnitOfWork.cs" />

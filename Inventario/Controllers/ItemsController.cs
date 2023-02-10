@@ -23,7 +23,7 @@ namespace Inventario.Controllers
         }*/
         public ItemsController(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            this._unitOfWork = unitOfWork;
         }
 
         public ActionResult Index()
