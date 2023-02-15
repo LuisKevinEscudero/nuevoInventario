@@ -50,7 +50,7 @@ namespace Inventario.App_Start
 
         }
 
-        private void AddBindings(IKernel kernel)
+        private void AddBindings(IKernel kernel)   
         {
             kernel.Bind<DbContext>().To<ApplicationDbContext>().InSingletonScope();
             kernel.Bind<IUnitOfWork>().To<UnitOfWork.UnitOfWork>()
