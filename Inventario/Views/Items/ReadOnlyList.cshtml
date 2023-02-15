@@ -19,22 +19,23 @@
 @section scripts
 {
     <script>
-        $(document).ready(function(){
-
-            var table= $("#items").DataTable({
-                ajax: {
-                    url: "/api/items",
-                    dataSrc: ""
-                },
-                columns: [
-                    {
-                        data: "Name",
-                        render: function (data, type, item) {
-                            return "<a href='/Items/Detail/" + item.Id + "'>" + item.Name + "</a>";
-                        }
+        var table = $("#items").DataTable({
+            ajax: {
+                url: "/api/items",
+                dataType: "json",
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                dataSrc: ""
+            },
+            columns: [
+                {
+                    data: "Name",
+                    render: function (data, type, item) {
+                        return "<a href='/Items/Detail/" + item.Id + "'>" + item.Name + "</a>";
                     }
-                ]
-            });
+                }
+            ]
         });
+
     </script>    
 }

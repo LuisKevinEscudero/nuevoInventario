@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Inventario.Controllers.API;
+using Inventario.Models;
+using Inventario.UnitOfWork;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,25 +9,55 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Web;
+using System.Web.Http;
 using System.Web.Mvc;
 
-
-namespace Inventario
+namespace Inventario.App_Start
 {
+    public class ServiceConfig
+    {
+        public static void ConfigureServices(ServiceCollection services)
+        {
+            services.AddTransient(typeof(IUnitOfWork), sp => new UnitOfWork.UnitOfWork(new ApplicationDbContext()));
+
+            services.AddMvcControllers("*");
+            services.AddMvcControllers(typeof(ItemsController).Assembly);
+        }
+    }
+
+    public class DefaultDependencyResolver : IDependencyResolver
+    {
+        private IServiceProvider serviceProvider;
+        public DefaultDependencyResolver(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+
+        public object GetService(Type serviceType)
+        {
+            return this.serviceProvider.GetService(serviceType);
+        }
+
+        public IEnumerable<object> GetServices(Type serviceType)
+        {
+            return this.serviceProvider.GetServices(serviceType);
+        }
+    }
+
     public static class ServiceProviderExtensions
     {
         private const string DefaultControllerFilter = "*Controller";
-        /*
-        public static IServiceCollection AddControllersAsServices(this IServiceCollection services, IEnumerable<Type> serviceTypes)
+
+        /*public static IServiceCollection AddControllersAsServices(this IServiceCollection services, IEnumerable<Type> serviceTypes)
         {
             foreach (var type in serviceTypes)
             {
                 services.AddTransient(type);
             }
-
             return services;
-        }
-        */
+        }*/
+
         public static void AddMvcControllers(this IServiceCollection serviceCollection, params string[] assemblyFilters)
         {
             serviceCollection.AddMvcControllers(GetAssemblies(assemblyFilters));
@@ -57,6 +90,7 @@ namespace Inventario
                 serviceCollection.Add(controller, Lifetime.Transient);
             }
         }
+
 
         public static void Add(this IServiceCollection serviceCollection, Type type, Lifetime lifetime)
         {
@@ -128,4 +162,10 @@ namespace Inventario
             }
         }
     }
+    public enum Lifetime
+    {
+        Transient,
+        Singleton
+    }
 }
+

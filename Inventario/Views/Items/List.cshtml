@@ -26,6 +26,7 @@
             var table= $("#items").DataTable({
                 ajax: {
                     url: "/api/items",
+                    method: "GET",
                     dataSrc: ""
                 },
                 columns: [

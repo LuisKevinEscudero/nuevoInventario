@@ -13,6 +13,7 @@ namespace Inventario.UnitOfWork
         ItemModelRepository ItemModelRepository { get; }
         ItemCategoryRepository ItemCategoryRepository { get; }
         void Save();
+        Task<int> SaveChangesAsync();
     }
 
 

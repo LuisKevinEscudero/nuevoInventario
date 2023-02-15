@@ -3,6 +3,7 @@ using Inventario.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Inventario.UnitOfWork
@@ -57,6 +58,11 @@ namespace Inventario.UnitOfWork
         public void Save()
         {
             _context.SaveChanges();
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
         }
     }
 

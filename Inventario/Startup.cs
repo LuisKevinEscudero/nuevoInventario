@@ -2,12 +2,14 @@
 using Microsoft.Owin;
 using Owin;
 using Microsoft.Extensions.DependencyInjection;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using System;
 using Inventario.Models;
-using Inventario.Repository;
-using Inventario.Controllers;
+using Inventario.CQRS.Queries;
+using MediatR;
+using System.Collections.Generic;
+using Autofac;
+using System.Web.Mvc;
+using Inventario.CQRS.Handlers;
+using Autofac.Integration.Mvc;
 
 [assembly: OwinStartupAttribute(typeof(Inventario.Startup))]
 namespace Inventario
@@ -21,15 +23,27 @@ namespace Inventario
 
         public void ConfigureServices(IServiceCollection services)
         {
-            /*var builder = new ContainerBuilder();
-            builder.RegisterType<ApplicationDbContext>().AsSelf();
-            builder.RegisterType<UnitOfWork.UnitOfWork>().As<IUnitOfWork>();
-            builder.RegisterType<ItemsController>().AsSelf();
-            var container = builder.Build();
+            services.AddScoped<ApplicationDbContext>(sp => new ApplicationDbContext());
+            services.AddScoped<IUnitOfWork>(sp => new UnitOfWork.UnitOfWork(new ApplicationDbContext()));
 
-            var controller = container.Resolve<ItemsController>();*/
-            services.AddSingleton<IUnitOfWork>(new UnitOfWork.UnitOfWork(new ApplicationDbContext()));
+            var container = new ContainerBuilder();
+
+            container.RegisterType<UnitOfWork.UnitOfWork>().As<IUnitOfWork>();
+            container.RegisterType<GetItemListHandler>().As<IRequestHandler<GetItemListQuery, List<Item>>>();
+
+            var resolver = new AutofacDependencyResolver(container.Build());
+            DependencyResolver.SetResolver(resolver);
+
+            services.AddMediatR(typeof(Startup).Assembly);
+            var serviceProvider = new ServiceCollection().AddMediatR(typeof(Startup)).BuildServiceProvider();
+
+            IMediator mediator = serviceProvider.GetService<IMediator>();
+            services.AddMediatR(typeof(Startup));
+
+
         }
 
     }
+
+
 }

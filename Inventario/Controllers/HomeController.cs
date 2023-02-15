@@ -1,4 +1,5 @@
 ﻿using Inventario.Models;
+using Inventario.UnitOfWork;
 using Inventario.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,22 @@ namespace Inventario.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController()
+        public HomeController(IUnitOfWork unitOfWork)
         {
-            _context = new ApplicationDbContext();
+            _unitOfWork = unitOfWork;
         }
 
         public ActionResult Index()
         {
-            var items = _context.Items.ToList();
+            var items = _unitOfWork.ItemRepository.GetAll();
+
             var viewModel = new ItemViewModel
             {
                 items = items
             };
+
             return View(viewModel);
         }
 

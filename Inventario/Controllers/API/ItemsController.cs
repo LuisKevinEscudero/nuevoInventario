@@ -1,32 +1,43 @@
 ﻿using Inventario.DTOs;
 using Inventario.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
-using System.Data.Entity;
 using Inventario.UnitOfWork;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using MediatR;
+using Inventario.CQRS.Queries;
+using System.Data.Entity;
 
 namespace Inventario.Controllers.API
 {
     public class ItemsController : ApiController
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-         /*public ItemsController()
-         {
-             _unitOfWork = new UnitOfWork.UnitOfWork(new ApplicationDbContext());
-         }*/
-
-        public ItemsController(IUnitOfWork unitOfWork)
+        public ItemsController(IMediator mediator, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
 
+        /*public ItemsController(IMediator mediator)
+        {
+            _unitOfWork = new UnitOfWork.UnitOfWork(new ApplicationDbContext());
+            _mediator = mediator;
+        }*/
+
         [HttpGet]
+        public async Task<List<ItemDTO>> GetItems()
+        {
+            var query = new GetItemListQuery();
+            var items = await _mediator.Send(query);
+            return items.Select(item => ItemMapper.ToDTO(item)).ToList();
+        }
+        /*[HttpGet]
         public IHttpActionResult GetItems()
         {
             var items = _unitOfWork.ItemRepository
@@ -34,7 +45,7 @@ namespace Inventario.Controllers.API
                 .Select(ItemMapper.ToDTO);
             
             return Ok(items);
-        }
+        }*/
 
         [HttpGet]
         public IHttpActionResult GetItem(int id)
@@ -47,7 +58,41 @@ namespace Inventario.Controllers.API
             return Ok(ItemMapper.ToDTO(item));
         }
 
+
         [HttpPost]
+        [Authorize(Roles = RoleName.Admin)]
+        public async Task<ItemDTO> CreateItem(ItemDTO itemDTO)
+        {
+            if (!ModelState.IsValid)
+                throw new Exception("Invalid input data");
+
+            var item = ItemMapper.ToItem(itemDTO);
+
+            var categoryList = _unitOfWork.ItemCategoryRepository.GetAll();
+            var modelList = _unitOfWork.ItemModelRepository.GetAll();
+
+            var category = categoryList.SingleOrDefault(c => c.Id == item.IdCategory);
+            var model = modelList.SingleOrDefault(m => m.Id == item.IdModel);
+
+            item.Category = category;
+            item.Model = model;
+
+            if (item.Category == null)
+                throw new Exception("Category not found");
+
+            if (item.Model == null)
+                throw new Exception("Model not found");
+
+            itemDTO.Id = item.Id;
+
+            _unitOfWork.ItemRepository.Add(item);
+            _unitOfWork.Save();
+
+            itemDTO.Id = item.Id;
+
+            return await Task.FromResult(itemDTO);
+        }
+        /*[HttpPost]
         [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult CreateItem(ItemDTO itemDTO)
         {
@@ -79,7 +124,7 @@ namespace Inventario.Controllers.API
             itemDTO.Id = item.Id;
             
             return Created(new Uri(Request.RequestUri + "/" + item.Id), itemDTO);
-        }
+        }*/
         /*json example:
          {
             "Name": "otro item ",
