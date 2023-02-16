@@ -42,7 +42,7 @@ namespace Inventario.App_Start
 
         public IEnumerable<object> GetServices(Type serviceType)
         {
-            return kernel.GetAll(serviceType);
+            return kernel.GetAll(serviceType); 
         }
          
         public void Dispose()
