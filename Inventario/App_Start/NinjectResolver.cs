@@ -10,6 +10,8 @@ using Inventario.Controllers.API;
 using MediatR;
 using Inventario.Models;
 using System.Data.Entity;
+using Inventario.CQRS.Queries;
+using Inventario.CQRS.Handlers;
 
 namespace Inventario.App_Start
 {
@@ -50,16 +52,25 @@ namespace Inventario.App_Start
 
         }
 
-        private void AddBindings(IKernel kernel)   
+        private void AddBindings(IKernel kernel)
         {
             kernel.Bind<DbContext>().To<ApplicationDbContext>().InSingletonScope();
             kernel.Bind<IUnitOfWork>().To<UnitOfWork.UnitOfWork>()
                 .InSingletonScope()
                 .WithConstructorArgument("dbContext", kernel.Get<DbContext>());
             kernel.Bind<IMediator>().To<Mediator>().InSingletonScope();
-            kernel.Bind<ItemsController>().ToSelf()
-                .WithConstructorArgument("mediator", kernel.Get<IMediator>());
+            kernel.Bind<ItemsController>().To<ItemsController>().InSingletonScope();
+            kernel.Bind<ServiceFactory>().ToMethod(ctx => t => ctx.Kernel.Get(t));
+            kernel.Bind<Mediator>().ToSelf().InSingletonScope()
+                .WithConstructorArgument("serviceFactory", kernel.Get<ServiceFactory>());
+            kernel.Bind<IRequestHandler<GetItemListQuery, List<Item>>>()
+                .To<GetItemListHandler>()
+                .InSingletonScope();
+
         }
+
+
+
 
 
         private IKernel AddRequestBindings(IKernel kernel)

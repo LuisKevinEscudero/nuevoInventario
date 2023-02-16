@@ -17,18 +17,18 @@ namespace Inventario.Controllers.API
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
-        public ItemsController(IMediator mediator, IUnitOfWork unitOfWork)
+        /*public ItemsController(IMediator mediator, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
-        }
+        }*/
 
 
-        /*public ItemsController(IMediator mediator)
+        public ItemsController(IMediator mediator)
         {
             _unitOfWork = new UnitOfWork.UnitOfWork(new ApplicationDbContext());
             _mediator = mediator;
-        }*/
+        }
 
         [HttpGet]
         public async Task<List<ItemDTO>> GetItems()
