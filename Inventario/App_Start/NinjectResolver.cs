@@ -44,7 +44,7 @@ namespace Inventario.App_Start
         {
             return kernel.GetAll(serviceType);
         }
-
+         
         public void Dispose()
         {
 
