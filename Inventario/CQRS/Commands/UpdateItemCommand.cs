@@ -1,4 +1,5 @@
 ﻿using Inventario.DTOs;
+using Inventario.Models;
 using Inventario.UnitOfWork;
 using MediatR;
 using System;
@@ -9,7 +10,7 @@ using System.Web;
 
 namespace Inventario.CQRS.Commands
 {
-    public class UpdateItemCommand : IRequest<ItemDTO>
+    public class UpdateItemCommand : IRequest<Item>
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -17,8 +18,10 @@ namespace Inventario.CQRS.Commands
         public int Quantity { get; set; }
         public DateTime LastUpdated { get; set; }
         public int IdCategory { get; set; }
+        public ItemCategory Category { get; set; }
         public string Brand { get; set; }
         public int IdModel { get; set; }
+        public ItemModel Model { get; set; }
         public string SerialNumber { get; set; }
         public string Location { get; set; }
         public string Status { get; set; }
@@ -27,42 +30,30 @@ namespace Inventario.CQRS.Commands
         public int Stock { get; set; }
         public double Price { get; set; }
 
-        private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateItemCommand(IUnitOfWork unitOfWork)
+        public UpdateItemCommand(
+            int id, string name, string description, int quantity, DateTime lastUpdated,
+            int idCategory, ItemCategory category, string brand, int idModel, ItemModel model, string serialNumber, string location,
+            string status, string notes, DateTime addDate, int stock, double price
+            )
         {
-            _unitOfWork = unitOfWork;
-        }
-
-        public async Task<ItemDTO> UpdateItemAsync()
-        {
-            var item = _unitOfWork.ItemRepository.Get(Id);
-            if (item == null)
-            {
-                throw new Exception($"Item with ID {Id} not found.");
-            }
-
-            item.Name = Name;
-            item.Description = Description;
-            item.Quantity = Quantity;
-            item.LastUpdated = LastUpdated;
-            item.IdCategory = IdCategory;
-            item.Brand = Brand;
-            item.IdModel = IdModel;
-            item.SerialNumber = SerialNumber;
-            item.Location = Location;
-            item.Status = Status;
-            item.Notes = Notes;
-            item.AddDate = AddDate;
-            item.Stock = Stock;
-            item.Price = (double)Price;
-
-            await _unitOfWork.SaveChangesAsync();
-
-            var itemDTO = ItemMapper.ToDTO(item);
-
-            return itemDTO;
-        }
+            Id = id;
+            Name = name;
+            Description = description;
+            Quantity = quantity;
+            LastUpdated = lastUpdated;
+            IdCategory = idCategory;
+            Category = category;
+            Brand = brand;
+            IdModel = idModel;
+            Model = model;
+            SerialNumber = serialNumber;
+            Location = location;
+            Status = status;
+            Notes = notes;
+            AddDate = addDate;
+            Stock = stock;
+            Price = price;
+        }   
     }
-
 }

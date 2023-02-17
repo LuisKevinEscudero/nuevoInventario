@@ -368,8 +368,10 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ItemsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="CQRS\Commands\DeleteItemCommand.cs" />
     <Compile Include="CQRS\Commands\InsertItemCommand.cs" />
     <Compile Include="CQRS\Commands\UpdateItemCommand.cs" />
+    <Compile Include="CQRS\Handlers\DeleteItemHandler.cs" />
     <Compile Include="CQRS\Handlers\GetItemByIdHandler.cs" />
     <Compile Include="CQRS\Handlers\GetItemListHandler.cs" />
     <Compile Include="CQRS\Handlers\GetItemsCategoryListHandler.cs" />

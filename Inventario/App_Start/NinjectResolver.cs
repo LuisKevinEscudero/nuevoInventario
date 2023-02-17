@@ -81,6 +81,12 @@ namespace Inventario.App_Start
             kernel.Bind<IRequestHandler<GetItemsCategoryQuery, List<ItemCategory>>>()
                 .To<GetItemsCategoryListHandler>()
                 .InSingletonScope();
+            kernel.Bind<IRequestHandler<UpdateItemCommand, Item>>()
+                .To<UpdateItemHandler>()
+                .InSingletonScope();
+            kernel.Bind<IRequestHandler<DeleteItemCommand, Unit>>()
+                .To<DeleteItemHandler>()
+                .InSingletonScope();
         }
 
 

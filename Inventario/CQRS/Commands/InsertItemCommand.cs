@@ -55,42 +55,6 @@ namespace Inventario.CQRS.Commands
             Stock = stock;
             Price = price;
         }
-
-        /*private readonly IUnitOfWork _unitOfWork;
-
-        public InsertItemCommand(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-
-        public async Task<ItemDTO> SaveItemAsync()
-        {
-            var item = new Item
-            {
-                Name = Name,
-                Description = Description,
-                Quantity = Quantity,
-                LastUpdated = LastUpdated,
-                IdCategory = IdCategory,
-                Brand = Brand,
-                IdModel = IdModel,
-                SerialNumber = SerialNumber,
-                Location = Location,
-                Status = Status,
-                Notes = Notes,
-                AddDate = AddDate,
-                Stock = Stock,
-                Price = (double)Price
-            };
-
-            _unitOfWork.ItemRepository.Add(item);
-            await _unitOfWork.SaveChangesAsync();
-
-            var itemDTO = ItemMapper.ToDTO(item);
-
-            return itemDTO;
-        }*/
     }
 
 }

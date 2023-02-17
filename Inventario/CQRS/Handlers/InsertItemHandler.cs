@@ -48,10 +48,5 @@ namespace Inventario.CQRS.Handlers
             _unitOfWork.Save();
             return Task.FromResult(item);
         }
-        /*public async Task<ItemDTO> Handle(InsertItemCommand request, CancellationToken cancellationToken)
-        {
-            return await request.SaveItemAsync();
-        }*/
-        
     }
 }

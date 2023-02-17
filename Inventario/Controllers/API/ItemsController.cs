@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using MediatR;
 using Inventario.CQRS.Queries;
 using Inventario.CQRS.Commands;
-using Inventario.CQRS.Handlers;
-using System.Threading;
+using System.Net;
+using System.Net.Http;
 
 namespace Inventario.Controllers.API
 {
@@ -18,13 +18,6 @@ namespace Inventario.Controllers.API
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
-
-        /*public ItemsController(IMediator mediator, IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-            _mediator = mediator;
-        }*/
-
 
         public ItemsController(IMediator mediator)
         {
@@ -37,36 +30,35 @@ namespace Inventario.Controllers.API
         {
             var query = new GetItemListQuery();
             var items = await _mediator.Send(query);
+
+
+            if (items == null)
+            {
+                var message = new HttpError("[GETALLITEMS] Items not found");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
             return items.Select(item => ItemMapper.ToDTO(item)).ToList();
         }
-        /*[HttpGet]
-        public IHttpActionResult GetItems()
-        {
-            var items = _unitOfWork.ItemRepository
-                .GetAll()
-                .Select(ItemMapper.ToDTO);
-            
-            return Ok(items);
-        }*/
 
 
         [HttpGet]
         public async Task<ItemDTO> GetItem(int id)
         {
             var query = new GetItemByIdQuery(id);
-            var items = await _mediator.Send(query);
-            return ItemMapper.ToDTO(items);
-        }
-        /*[HttpGet]
-        public IHttpActionResult GetItem(int id)
-        {
-            var item = _unitOfWork.ItemRepository.Get(id);
-           
+            var item = await _mediator.Send(query);
+
+
             if (item == null)
-                return NotFound();
-            
-            return Ok(ItemMapper.ToDTO(item));
-        }*/
+            {
+                var message = new HttpError("[GETITEMBYID] Item not found with id: " + id);
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
+
+            return ItemMapper.ToDTO(item);
+        }
+
 
         [HttpGet]
         [Route("api/items/models")]
@@ -74,6 +66,13 @@ namespace Inventario.Controllers.API
         {
             var query = new GetItemsModelQuery();
             var itemsModel = await _mediator.Send(query);
+
+            if (itemsModel == null)
+            {
+                var message = new HttpError("[ITEMSMODEL] itemsModel not found");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
             return itemsModel;
         }
 
@@ -83,6 +82,13 @@ namespace Inventario.Controllers.API
         {
             var query = new GetItemsCategoryQuery();
             var itemsCategory = await _mediator.Send(query);
+
+            if ( itemsCategory == null)
+            {
+                var message = new HttpError("[ITEMSCATEGORY] itemsCategory not found");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
             return itemsCategory;
         }
 
@@ -94,11 +100,37 @@ namespace Inventario.Controllers.API
             var query = new GetItemsModelQuery();
             var itemsModel = await _mediator.Send(query);
 
+            if (itemsModel == null)
+            {
+                var message = new HttpError("[CREATE] itemsModel not found");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
             var query2 = new GetItemsCategoryQuery();
             var itemsCategory = await _mediator.Send(query2);
 
+            if (itemsCategory == null)
+            {
+                var message = new HttpError("[CREATE]ititemsCategoryemsModel not found");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
             var category = itemsCategory.SingleOrDefault(c => c.Id == item.IdCategory);
             var model = itemsModel.SingleOrDefault(m => m.Id == item.IdModel);
+
+
+            if (category == null)
+            {
+                var message = new HttpError("[CREATE]Category not found with id: " + item.IdCategory);
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
+
+
+            if (model == null)
+            {
+                var message = new HttpError("[CREATE]Model not found with id: " + item.IdModel);
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
 
             item.Category = category;
             item.Model = model;
@@ -126,237 +158,141 @@ namespace Inventario.Controllers.API
             return await _mediator.Send(command);
         }
 
-            /*if (!ModelState.IsValid)
-                throw new Exception("Invalid input data");
 
-            var item = ItemMapper.ToItem(itemDTO);
-
-            var categoryList = _unitOfWork.ItemCategoryRepository.GetAll();
-            var modelList = _unitOfWork.ItemModelRepository.GetAll();
-
-            var category = categoryList.SingleOrDefault(c => c.Id == item.IdCategory);
-            var model = modelList.SingleOrDefault(m => m.Id == item.IdModel);
-
-            item.Category = category;
-            item.Model = model;
-
-            if (item.Category == null)
-                throw new Exception("Category not found");
-
-            if (item.Model == null)
-                throw new Exception("Model not found");
-
-            itemDTO.Id = item.Id;
-
-            _unitOfWork.ItemRepository.Add(item);
-            _unitOfWork.Save();
-
-            itemDTO.Id = item.Id;
-
-            return await Task.FromResult(itemDTO);*/
-        /*[HttpPost]
-        [Authorize(Roles = RoleName.Admin)]
-        public IHttpActionResult CreateItem(ItemDTO itemDTO)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var item = ItemMapper.ToItem(itemDTO);
-
-            var categoryList = _unitOfWork.ItemCategoryRepository.GetAll();
-            var modelList = _unitOfWork.ItemModelRepository.GetAll();
-
-            var category = categoryList.SingleOrDefault(c => c.Id == item.IdCategory);
-            var model = modelList.SingleOrDefault(m => m.Id == item.IdModel);
-
-            item.Category = category;
-            item.Model = model;
-
-            if (item.Category == null)
-                return BadRequest("Category not found");
-
-            if (item.Model == null)
-                return BadRequest("Model not found");
-
-            itemDTO.Id = item.Id;
-
-            _unitOfWork.ItemRepository.Add(item);
-            _unitOfWork.Save();
-
-            itemDTO.Id = item.Id;
-            
-            return Created(new Uri(Request.RequestUri + "/" + item.Id), itemDTO);
-        }*/
-        /*json example:
-         {
-            "Name": "otro item ",
-            "Description": "Description3",
-            "Quantity": 30,
-            "IdCategory": 3,
-            "Category": {
-                "Name": "Laptops"
-            },
-            "Brand": "Brand3",
-            "IdModel": 3,
-            "Model": {
-                "Name": "Dell"
-            },
-            "SerialNumber": "Serial3",
-            "Location": "Location3",
-            "Status": "Status3",
-            "Notes": "Notes3",
-            "Stock": 300,
-            "Price": 30.0,
-            "LastUpdated": "2022-03-01T00:00:00",
-            "AddDate": "2021-03-01T00:00:00"
-        }*/
         [HttpPut]
         //[Authorize(Roles = RoleName.Admin)]
-        public async Task<ItemDTO> UpdateItem(int id, ItemDTO itemDTO)
+        public async Task<Item> UpdateItem(int id, Item item)
         {
-            var itemInDb = _unitOfWork.ItemRepository.Get(id);
 
+            var queryItemById = new GetItemByIdQuery(id);
+            var itemInDb = await _mediator.Send(queryItemById);
 
-            if (!string.IsNullOrEmpty(itemDTO.Name))
-                itemInDb.Name = itemDTO.Name;
-
-            if (!string.IsNullOrEmpty(itemDTO.Description))
-                itemInDb.Description = itemDTO.Description;
-
-            if (itemDTO.Quantity > 0)
-                itemInDb.Quantity = itemDTO.Quantity;
-
-            if (itemDTO.IdCategory > 0)
+            if (itemInDb == null)
             {
+                var message = new HttpError("[UPDATE] itemInDb not found with id: " + id);
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
 
-                var category = _unitOfWork.ItemCategoryRepository.Get(itemDTO.IdCategory);
+            if (!string.IsNullOrEmpty(item.Name))
+                itemInDb.Name = item.Name;
+
+            if (!string.IsNullOrEmpty(item.Description))
+                itemInDb.Description = item.Description;
+
+            if (item.Quantity > 0)
+                itemInDb.Quantity = item.Quantity;
+
+            if (item.IdCategory > 0)
+            {
+                var queryItemsCategory = new GetItemsCategoryQuery();
+                var itemsCategory = await _mediator.Send(queryItemsCategory);
+
+                if (itemsCategory == null)
+                {
+                    var message = new HttpError("[UPDATE] itemsCategory not found");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
+                var category = itemsCategory.SingleOrDefault(c => c.Id == item.IdCategory);
+
+                if (category == null)
+                {
+                    var message = new HttpError("[UPDATE] category not found with id: " + item.IdCategory);
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
                 if (category != null)
                     itemInDb.Category = category;
             }
 
-            if (!string.IsNullOrEmpty(itemDTO.Brand))
-                itemInDb.Brand = itemDTO.Brand;
+            if (!string.IsNullOrEmpty(item.Brand))
+                itemInDb.Brand = item.Brand;
 
-            if (itemDTO.IdModel > 0)
+            if (item.IdModel > 0)
             {
+                var queryItemsModel = new GetItemsModelQuery();
+                var itemsModel = await _mediator.Send(queryItemsModel);
 
-                var model = _unitOfWork.ItemModelRepository.Get(itemDTO.IdModel);
+                if (itemsModel == null)
+                {
+                    var message = new HttpError("[UPDATE] itemsModel not found");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+                
+                var model = itemsModel.SingleOrDefault(m => m.Id == item.IdModel);
+
+                if (model == null)
+                {
+                    var message = new HttpError("[UPDATE] model not found with id: " + item.IdModel);
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
                 if (model != null)
                     itemInDb.Model = model;
             }
 
-            if (!string.IsNullOrEmpty(itemDTO.SerialNumber))
-                itemInDb.SerialNumber = itemDTO.SerialNumber;
+            if (!string.IsNullOrEmpty(item.SerialNumber))
+                itemInDb.SerialNumber = item.SerialNumber;
 
-            if (!string.IsNullOrEmpty(itemDTO.Location))
-                itemInDb.Location = itemDTO.Location;
+            if (!string.IsNullOrEmpty(item.Location))
+                itemInDb.Location = item.Location;
 
-            if (!string.IsNullOrEmpty(itemDTO.Status))
-                itemInDb.Status = itemDTO.Status;
+            if (!string.IsNullOrEmpty(item.Status))
+                itemInDb.Status = item.Status;
 
-            if (!string.IsNullOrEmpty(itemDTO.Notes))
-                itemInDb.Notes = itemDTO.Notes;
+            if (!string.IsNullOrEmpty(item.Notes))
+                itemInDb.Notes = item.Notes;
 
-            if (itemDTO.Stock > 0)
-                itemInDb.Stock = itemDTO.Stock;
+            if (item.Stock > 0)
+                itemInDb.Stock = item.Stock;
 
-            if (itemDTO.Price > 0)
-                itemInDb.Price = itemDTO.Price;
+            if (item.Price > 0)
+                itemInDb.Price = item.Price;
 
-            if (itemDTO.LastUpdated != default(DateTime))
-                itemInDb.LastUpdated = itemDTO.LastUpdated;
+            if (item.LastUpdated != default(DateTime))
+                itemInDb.LastUpdated = item.LastUpdated;
 
-            if (itemDTO.AddDate != default(DateTime))
-                itemInDb.AddDate = itemDTO.AddDate;
+            if (item.AddDate != default(DateTime))
+                itemInDb.AddDate = item.AddDate;
 
-            return await Task.FromResult(ItemMapper.ToDTO(itemInDb));
-
+            var updateItemCommand = new UpdateItemCommand(
+                    itemInDb.Id,
+                    itemInDb.Name,
+                    itemInDb.Description,
+                    itemInDb.Quantity,
+                    itemInDb.LastUpdated,
+                    itemInDb.Category.Id,
+                    itemInDb.Category,
+                    itemInDb.Brand,
+                    itemInDb.Model.Id,
+                    itemInDb.Model,
+                    itemInDb.SerialNumber,
+                    itemInDb.Location,
+                    itemInDb.Status,
+                    itemInDb.Notes,
+                    itemInDb.AddDate,
+                    itemInDb.Stock,
+                    itemInDb.Price     
+                );
+            return await _mediator.Send(updateItemCommand);
         }
 
-        /*[HttpPut]
-        [Authorize(Roles = RoleName.Admin)]
-        public IHttpActionResult UpdateItem(int id, ItemDTO itemDTO)
-        {
-
-            var itemInDb = _unitOfWork.ItemRepository.Get(id);
-
-            if (itemInDb == null)
-                return NotFound();
-
-            if (!string.IsNullOrEmpty(itemDTO.Name))
-                itemInDb.Name = itemDTO.Name;
-
-            if (!string.IsNullOrEmpty(itemDTO.Description))
-                itemInDb.Description = itemDTO.Description;
-
-            if (itemDTO.Quantity > 0)
-                itemInDb.Quantity = itemDTO.Quantity;
-
-            if (itemDTO.IdCategory > 0)
-            {
-
-                var category = _unitOfWork.ItemCategoryRepository.Get(itemDTO.IdCategory);
-                if (category != null)
-                    itemInDb.Category = category;
-            }
-
-            if (!string.IsNullOrEmpty(itemDTO.Brand))
-                itemInDb.Brand = itemDTO.Brand;
-
-            if (itemDTO.IdModel > 0)
-            {
-
-                var model = _unitOfWork.ItemModelRepository.Get(itemDTO.IdModel);
-                if (model != null)
-                    itemInDb.Model = model;
-            }
-
-            if (!string.IsNullOrEmpty(itemDTO.SerialNumber))
-                itemInDb.SerialNumber = itemDTO.SerialNumber;
-
-            if (!string.IsNullOrEmpty(itemDTO.Location))
-                itemInDb.Location = itemDTO.Location;
-
-            if (!string.IsNullOrEmpty(itemDTO.Status))
-                itemInDb.Status = itemDTO.Status;
-
-            if (!string.IsNullOrEmpty(itemDTO.Notes))
-                itemInDb.Notes = itemDTO.Notes;
-
-            if (itemDTO.Stock > 0)
-                itemInDb.Stock = itemDTO.Stock;
-
-            if (itemDTO.Price > 0)
-                itemInDb.Price = itemDTO.Price;
-
-            if (itemDTO.LastUpdated != default(DateTime))
-                itemInDb.LastUpdated = itemDTO.LastUpdated;
-
-            if (itemDTO.AddDate != default(DateTime))
-                itemInDb.AddDate = itemDTO.AddDate;
-
-
-            _unitOfWork.Save();
-
-            return Ok();
-        }*/
-
         [HttpDelete]
-        [Authorize(Roles = RoleName.Admin)]
-        public IHttpActionResult DeleteItem(int id)
+        //[Authorize(Roles = RoleName.Admin)]
+        public async Task<Unit> DeleteItem(int id) 
         {
 
-            var itemInDb = _unitOfWork.ItemRepository.Get(id);
+            var queryItemById = new GetItemByIdQuery(id);
+            var itemInDb = await _mediator.Send(queryItemById);
 
             if (itemInDb == null)
-                return NotFound();
+            {
+                var message = new HttpError("[DELETE] itemInDb not found with id: " + id);
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+            }
 
-
-            _unitOfWork.ItemRepository.Delete(itemInDb);
-
-            _unitOfWork.Save();
-
-            return Ok();
+            var deleteItemCommand = new DeleteItemCommand(itemInDb.Id);
+            return await _mediator.Send(deleteItemCommand);
         }
     }
 }
