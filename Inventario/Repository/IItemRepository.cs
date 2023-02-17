@@ -10,7 +10,7 @@ namespace Inventario.Repository
 {
     public interface IItemRepository
     {
-        void Add(Item item);
+        Item Add(Item item);
         void Delete(Item item);
         Item Get(int id);
         List<Item> GetAll();

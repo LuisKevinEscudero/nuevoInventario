@@ -1,4 +1,5 @@
-﻿using Inventario.Models;
+﻿using Inventario.CQRS.Commands;
+using Inventario.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,6 +67,6 @@ namespace Inventario.DTOs
                 LastUpdated = itemDTO.LastUpdated,
                 AddDate = itemDTO.AddDate
             };
-        }
+        } 
     }
 }

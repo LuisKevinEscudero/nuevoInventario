@@ -12,6 +12,8 @@ using Inventario.Models;
 using System.Data.Entity;
 using Inventario.CQRS.Queries;
 using Inventario.CQRS.Handlers;
+using Inventario.DTOs;
+using Inventario.CQRS.Commands;
 
 namespace Inventario.App_Start
 {
@@ -59,14 +61,26 @@ namespace Inventario.App_Start
                 .InSingletonScope()
                 .WithConstructorArgument("dbContext", kernel.Get<DbContext>());
             kernel.Bind<IMediator>().To<Mediator>().InSingletonScope();
-            kernel.Bind<ItemsController>().To<ItemsController>().InSingletonScope();
+           // kernel.Bind<ItemsController>().To<ItemsController>().InSingletonScope();
             kernel.Bind<ServiceFactory>().ToMethod(ctx => t => ctx.Kernel.Get(t));
             kernel.Bind<Mediator>().ToSelf().InSingletonScope()
                 .WithConstructorArgument("serviceFactory", kernel.Get<ServiceFactory>());
+            
             kernel.Bind<IRequestHandler<GetItemListQuery, List<Item>>>()
                 .To<GetItemListHandler>()
                 .InSingletonScope();
-
+            kernel.Bind<IRequestHandler<GetItemByIdQuery, Item>>()
+                .To<GetItemByIdHandler>()
+                .InSingletonScope();
+            kernel.Bind<IRequestHandler<InsertItemCommand, Item>>()
+                .To<InsertItemHandler>()
+                .InSingletonScope();
+            kernel.Bind<IRequestHandler<GetItemsModelQuery, List<ItemModel>>>()
+                .To<GetItemsModelListHandler>()
+                .InSingletonScope();
+            kernel.Bind<IRequestHandler<GetItemsCategoryQuery, List<ItemCategory>>>()
+                .To<GetItemsCategoryListHandler>()
+                .InSingletonScope();
         }
 
 

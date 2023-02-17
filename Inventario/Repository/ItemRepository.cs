@@ -1,4 +1,5 @@
-﻿using Inventario.Models;
+﻿using Inventario.CQRS.Commands;
+using Inventario.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -17,9 +18,9 @@ namespace Inventario.Repository
             _context = context;
         }
 
-        public void Add(Item item)
+        public Item Add(Item item)
         {
-            _context.Items.Add(item);
+            return _context.Items.Add(item);
         }
 
         public void Delete(Item item)

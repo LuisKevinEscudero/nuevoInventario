@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using MediatR;
 using Inventario.CQRS.Queries;
-using System.Data.Entity;
+using Inventario.CQRS.Commands;
+using Inventario.CQRS.Handlers;
+using System.Threading;
 
 namespace Inventario.Controllers.API
 {
@@ -47,7 +49,15 @@ namespace Inventario.Controllers.API
             return Ok(items);
         }*/
 
+
         [HttpGet]
+        public async Task<ItemDTO> GetItem(int id)
+        {
+            var query = new GetItemByIdQuery(id);
+            var items = await _mediator.Send(query);
+            return ItemMapper.ToDTO(items);
+        }
+        /*[HttpGet]
         public IHttpActionResult GetItem(int id)
         {
             var item = _unitOfWork.ItemRepository.Get(id);
@@ -56,14 +66,67 @@ namespace Inventario.Controllers.API
                 return NotFound();
             
             return Ok(ItemMapper.ToDTO(item));
+        }*/
+
+        [HttpGet]
+        [Route("api/items/models")]
+        public async Task<List<ItemModel>> GetItemsModel()
+        {
+            var query = new GetItemsModelQuery();
+            var itemsModel = await _mediator.Send(query);
+            return itemsModel;
+        }
+
+        [HttpGet]
+        [Route("api/items/categories")]
+        public async Task<List<ItemCategory>> GetItemsCategory()
+        {
+            var query = new GetItemsCategoryQuery();
+            var itemsCategory = await _mediator.Send(query);
+            return itemsCategory;
         }
 
 
         [HttpPost]
-        [Authorize(Roles = RoleName.Admin)]
-        public async Task<ItemDTO> CreateItem(ItemDTO itemDTO)
+        //[Authorize(Roles = RoleName.Admin)]
+        public async Task<Item> CreateItem(Item item)
         {
-            if (!ModelState.IsValid)
+            var query = new GetItemsModelQuery();
+            var itemsModel = await _mediator.Send(query);
+
+            var query2 = new GetItemsCategoryQuery();
+            var itemsCategory = await _mediator.Send(query2);
+
+            var category = itemsCategory.SingleOrDefault(c => c.Id == item.IdCategory);
+            var model = itemsModel.SingleOrDefault(m => m.Id == item.IdModel);
+
+            item.Category = category;
+            item.Model = model;
+
+            var command = new InsertItemCommand(
+                   item.Id,
+                   item.Name,
+                   item.Description,
+                   item.Quantity,
+                   item.LastUpdated,
+                   item.IdCategory,
+                   item.Category,
+                   item.Brand,
+                   item.IdModel,
+                   item.Model,
+                   item.SerialNumber,
+                   item.Location,
+                   item.Status,
+                   item.Notes,
+                   item.AddDate,
+                   item.Stock,
+                   item.Price
+            );
+
+            return await _mediator.Send(command);
+        }
+
+            /*if (!ModelState.IsValid)
                 throw new Exception("Invalid input data");
 
             var item = ItemMapper.ToItem(itemDTO);
@@ -90,8 +153,7 @@ namespace Inventario.Controllers.API
 
             itemDTO.Id = item.Id;
 
-            return await Task.FromResult(itemDTO);
-        }
+            return await Task.FromResult(itemDTO);*/
         /*[HttpPost]
         [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult CreateItem(ItemDTO itemDTO)
@@ -148,8 +210,70 @@ namespace Inventario.Controllers.API
             "LastUpdated": "2022-03-01T00:00:00",
             "AddDate": "2021-03-01T00:00:00"
         }*/
-
         [HttpPut]
+        //[Authorize(Roles = RoleName.Admin)]
+        public async Task<ItemDTO> UpdateItem(int id, ItemDTO itemDTO)
+        {
+            var itemInDb = _unitOfWork.ItemRepository.Get(id);
+
+
+            if (!string.IsNullOrEmpty(itemDTO.Name))
+                itemInDb.Name = itemDTO.Name;
+
+            if (!string.IsNullOrEmpty(itemDTO.Description))
+                itemInDb.Description = itemDTO.Description;
+
+            if (itemDTO.Quantity > 0)
+                itemInDb.Quantity = itemDTO.Quantity;
+
+            if (itemDTO.IdCategory > 0)
+            {
+
+                var category = _unitOfWork.ItemCategoryRepository.Get(itemDTO.IdCategory);
+                if (category != null)
+                    itemInDb.Category = category;
+            }
+
+            if (!string.IsNullOrEmpty(itemDTO.Brand))
+                itemInDb.Brand = itemDTO.Brand;
+
+            if (itemDTO.IdModel > 0)
+            {
+
+                var model = _unitOfWork.ItemModelRepository.Get(itemDTO.IdModel);
+                if (model != null)
+                    itemInDb.Model = model;
+            }
+
+            if (!string.IsNullOrEmpty(itemDTO.SerialNumber))
+                itemInDb.SerialNumber = itemDTO.SerialNumber;
+
+            if (!string.IsNullOrEmpty(itemDTO.Location))
+                itemInDb.Location = itemDTO.Location;
+
+            if (!string.IsNullOrEmpty(itemDTO.Status))
+                itemInDb.Status = itemDTO.Status;
+
+            if (!string.IsNullOrEmpty(itemDTO.Notes))
+                itemInDb.Notes = itemDTO.Notes;
+
+            if (itemDTO.Stock > 0)
+                itemInDb.Stock = itemDTO.Stock;
+
+            if (itemDTO.Price > 0)
+                itemInDb.Price = itemDTO.Price;
+
+            if (itemDTO.LastUpdated != default(DateTime))
+                itemInDb.LastUpdated = itemDTO.LastUpdated;
+
+            if (itemDTO.AddDate != default(DateTime))
+                itemInDb.AddDate = itemDTO.AddDate;
+
+            return await Task.FromResult(ItemMapper.ToDTO(itemInDb));
+
+        }
+
+        /*[HttpPut]
         [Authorize(Roles = RoleName.Admin)]
         public IHttpActionResult UpdateItem(int id, ItemDTO itemDTO)
         {
@@ -215,7 +339,7 @@ namespace Inventario.Controllers.API
             _unitOfWork.Save();
 
             return Ok();
-        }
+        }*/
 
         [HttpDelete]
         [Authorize(Roles = RoleName.Admin)]
