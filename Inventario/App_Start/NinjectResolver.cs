@@ -61,7 +61,6 @@ namespace Inventario.App_Start
                 .InSingletonScope()
                 .WithConstructorArgument("dbContext", kernel.Get<DbContext>());
             kernel.Bind<IMediator>().To<Mediator>().InSingletonScope();
-           // kernel.Bind<ItemsController>().To<ItemsController>().InSingletonScope();
             kernel.Bind<ServiceFactory>().ToMethod(ctx => t => ctx.Kernel.Get(t));
             kernel.Bind<Mediator>().ToSelf().InSingletonScope()
                 .WithConstructorArgument("serviceFactory", kernel.Get<ServiceFactory>());

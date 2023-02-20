@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Inventario.UnitOfWork
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
         ItemRepository ItemRepository { get; }
         ItemModelRepository ItemModelRepository { get; }

@@ -39,8 +39,6 @@ namespace Inventario
 
             IMediator mediator = serviceProvider.GetService<IMediator>();
             services.AddMediatR(typeof(Startup));
-
-
         }
 
     }

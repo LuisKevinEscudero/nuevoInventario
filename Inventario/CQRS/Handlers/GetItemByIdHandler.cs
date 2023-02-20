@@ -22,10 +22,9 @@ namespace Inventario.CQRS.Handlers
         }
 
 
-        public async Task<Item> Handle(GetItemByIdQuery request, CancellationToken cancellationToken)
+        public Task<Item> Handle(GetItemByIdQuery request, CancellationToken cancellationToken)
         {
-            var item = _unitOfWork.ItemRepository.Get(request.Id);
-            return await Task.FromResult(item);
+            return Task.FromResult(_unitOfWork.ItemRepository.Get(request.Id));
         }
 
     }

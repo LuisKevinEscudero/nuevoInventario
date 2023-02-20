@@ -8,7 +8,7 @@ using System.Web;
 
 namespace Inventario.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly ApplicationDbContext _context;
 
@@ -53,6 +53,11 @@ namespace Inventario.UnitOfWork
                 }
                 return _itemCategoryRepository;
             }
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
         }
 
         public void Save()

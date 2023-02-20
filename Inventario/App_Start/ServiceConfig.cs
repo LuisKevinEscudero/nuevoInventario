@@ -1,6 +1,8 @@
-﻿using Inventario.Controllers.API;
+﻿using Inventario.Controllers;
+using Inventario.Controllers.API;
 using Inventario.Models;
 using Inventario.UnitOfWork;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -22,13 +24,15 @@ namespace Inventario.App_Start
             services.AddTransient(typeof(IUnitOfWork), sp => new UnitOfWork.UnitOfWork(new ApplicationDbContext()));
 
             services.AddMvcControllers("*");
-            services.AddMvcControllers(typeof(ItemsController).Assembly);
+            services.AddMvcControllers(typeof(Controllers.API.ItemsController).Assembly);
+            services.AddMediatR(typeof(Controllers.ItemsController).Assembly);
         }
     }
 
     public class DefaultDependencyResolver : IDependencyResolver
     {
         private IServiceProvider serviceProvider;
+        
         public DefaultDependencyResolver(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
@@ -38,6 +42,7 @@ namespace Inventario.App_Start
         {
             return this.serviceProvider.GetService(serviceType);
         }
+
 
         public IEnumerable<object> GetServices(Type serviceType)
         {
