@@ -16,20 +16,13 @@ namespace Inventario.Controllers.API
 {
     public class ItemsController : ApiController
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
-        public ItemsController(IMediator mediator, IUnitOfWork unitOfWork)
+        public ItemsController(IMediator mediator)
         {
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
         }
 
-        /*public ItemsController(IMediator mediator)
-        {
-            _unitOfWork = new UnitOfWork.UnitOfWork(new ApplicationDbContext());
-            _mediator = mediator;
-        }*/
 
         [HttpGet]
         public async Task<List<ItemDTO>> GetItems()
@@ -37,13 +30,11 @@ namespace Inventario.Controllers.API
             var query = new GetItemListQuery();
             var items = await _mediator.Send(query);
 
-
             if (items == null)
             {
                 var message = new HttpError("[GETALLITEMS] Items not found");
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
             }
-            _unitOfWork.Dispose();
             return items.Select(item => ItemMapper.ToDTO(item)).ToList();
         }
 
@@ -61,7 +52,6 @@ namespace Inventario.Controllers.API
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
             }
 
-            _unitOfWork.Dispose();
             return ItemMapper.ToDTO(item);
         }
 
@@ -78,7 +68,7 @@ namespace Inventario.Controllers.API
                 var message = new HttpError("[ITEMSMODEL] itemsModel not found");
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
             }
-            _unitOfWork.Dispose();
+
             return itemsModel;
         }
 
@@ -94,7 +84,7 @@ namespace Inventario.Controllers.API
                 var message = new HttpError("[ITEMSCATEGORY] itemsCategory not found");
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
             }
-            _unitOfWork.Dispose();
+
             return itemsCategory;
         }
 
@@ -160,7 +150,7 @@ namespace Inventario.Controllers.API
                    item.Stock,
                    item.Price
             );
-            _unitOfWork.Dispose();
+
             return await _mediator.Send(command);
         }
 
@@ -280,7 +270,6 @@ namespace Inventario.Controllers.API
                     itemInDb.Stock,
                     itemInDb.Price     
                 );
-            _unitOfWork.Dispose();
             return await _mediator.Send(updateItemCommand);
         }
 
@@ -299,7 +288,6 @@ namespace Inventario.Controllers.API
             }
 
             var deleteItemCommand = new DeleteItemCommand(itemInDb.Id);
-            _unitOfWork.Dispose();
             return await _mediator.Send(deleteItemCommand);
         }
     }

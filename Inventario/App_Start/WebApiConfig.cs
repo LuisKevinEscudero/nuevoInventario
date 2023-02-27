@@ -1,4 +1,6 @@
 ﻿using Inventario.App_Start;
+using Ninject;
+using Ninject.Web.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,6 @@ namespace Inventario
     {
         public static void Register(HttpConfiguration config)
         {
-            config.DependencyResolver = new NinjectResolver();
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

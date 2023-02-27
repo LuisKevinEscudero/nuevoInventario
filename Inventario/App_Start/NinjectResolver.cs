@@ -14,6 +14,7 @@ using Inventario.CQRS.Queries;
 using Inventario.CQRS.Handlers;
 using Inventario.DTOs;
 using Inventario.CQRS.Commands;
+using Inventario.Controllers;
 
 namespace Inventario.App_Start
 {
@@ -33,6 +34,8 @@ namespace Inventario.App_Start
                 AddBindings(kernel);
             }
         }
+
+
 
         public IDependencyScope BeginScope()
         {
@@ -56,16 +59,19 @@ namespace Inventario.App_Start
 
         private void AddBindings(IKernel kernel)
         {
-            kernel.Bind<DbContext>().To<ApplicationDbContext>().InSingletonScope();
+            /*kernel.Bind<DbContext>().To<ApplicationDbContext>().InSingletonScope();
             kernel.Bind<IUnitOfWork>().To<UnitOfWork.UnitOfWork>()
                 .InSingletonScope()
                 .WithConstructorArgument("dbContext", kernel.Get<DbContext>());
             kernel.Bind<IMediator>().To<Mediator>().InSingletonScope();
             kernel.Bind<ServiceFactory>().ToMethod(ctx => t => ctx.Kernel.Get(t));
             kernel.Bind<Mediator>().ToSelf().InSingletonScope()
-                .WithConstructorArgument("serviceFactory", kernel.Get<ServiceFactory>());
-            
-            kernel.Bind<IRequestHandler<GetItemListQuery, List<Item>>>()
+                .WithConstructorArgument("serviceFactory", kernel.Get<ServiceFactory>());*/
+
+            //kernel.Bind<IDependencyResolver>().To<NinjectResolver>();
+
+            //add queries to dependency injection
+            /*kernel.Bind<IRequestHandler<GetItemListQuery, List<Item>>>()
                 .To<GetItemListHandler>()
                 .InSingletonScope();
             kernel.Bind<IRequestHandler<GetItemByIdQuery, Item>>()
@@ -85,17 +91,11 @@ namespace Inventario.App_Start
                 .InSingletonScope();
             kernel.Bind<IRequestHandler<DeleteItemCommand, Unit>>()
                 .To<DeleteItemHandler>()
-                .InSingletonScope();
+                .InSingletonScope();*/
         }
-
-
-
-
 
         private IKernel AddRequestBindings(IKernel kernel)
         {
-            kernel.Bind<IUnitOfWork>().To<UnitOfWork.UnitOfWork>().InSingletonScope();
-            
             return kernel;
         }
     }

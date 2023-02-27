@@ -1,15 +1,12 @@
-﻿using Inventario.UnitOfWork;
-using Microsoft.Owin;
+﻿using Microsoft.Owin;
 using Owin;
 using Microsoft.Extensions.DependencyInjection;
-using Inventario.Models;
-using Inventario.CQRS.Queries;
 using MediatR;
+using Ninject;
+using Ninject.Extensions.Conventions;
 using System.Collections.Generic;
-using Autofac;
-using System.Web.Mvc;
-using Inventario.CQRS.Handlers;
-using Autofac.Integration.Mvc;
+using System;
+using System.Linq;
 
 [assembly: OwinStartupAttribute(typeof(Inventario.Startup))]
 namespace Inventario
@@ -19,26 +16,37 @@ namespace Inventario
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<ApplicationDbContext>(sp => new ApplicationDbContext());
-            services.AddScoped<IUnitOfWork>(sp => new UnitOfWork.UnitOfWork(new ApplicationDbContext()));
-
-            var container = new ContainerBuilder();
-
-            container.RegisterType<UnitOfWork.UnitOfWork>().As<IUnitOfWork>();
-            container.RegisterType<GetItemListHandler>().As<IRequestHandler<GetItemListQuery, List<Item>>>();
-
-            var resolver = new AutofacDependencyResolver(container.Build());
-            DependencyResolver.SetResolver(resolver);
-
+            // Configurar MediatR con Ninject
             services.AddMediatR(typeof(Startup).Assembly);
-            var serviceProvider = new ServiceCollection().AddMediatR(typeof(Startup)).BuildServiceProvider();
+            var kernel = new StandardKernel();
+            kernel.Bind(x => x.FromThisAssembly()
+                .SelectAllClasses()
+                .InheritedFrom(typeof(IRequestHandler<,>))
+                .BindAllInterfaces());
 
-            IMediator mediator = serviceProvider.GetService<IMediator>();
-            services.AddMediatR(typeof(Startup));
+            kernel.Bind<Func<Type, object>>().ToMethod(ctx =>
+            {
+                var type = ctx.Kernel.GetBindings(typeof(IEnumerable<>)
+                    .MakeGenericType(typeof(IRequestHandler<,>)
+                    .MakeGenericType(ctx.Request.ParentRequest.Service.GetGenericArguments())))
+                    .Select(x => x.BindingConfiguration.ProviderCallback(null))
+                    .Cast<object>()
+                    .ToArray();
+
+                return t => type.FirstOrDefault(x => x.GetType().GetInterfaces()
+                    .Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)
+                    && y.GenericTypeArguments[0] == t));
+            });
+
+            kernel.Bind<IMediator>().To<Mediator>();
+
+            // Registra el contenedor Ninject en el contenedor de servicios de ASP.NET
+            services.AddSingleton<IKernel>(kernel);
         }
 
     }

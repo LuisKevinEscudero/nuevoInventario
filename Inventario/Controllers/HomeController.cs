@@ -1,26 +1,26 @@
-﻿using Inventario.Models;
-using Inventario.UnitOfWork;
+﻿
+
+using Inventario.CQRS.Queries;
 using Inventario.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using MediatR;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace Inventario.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
 
-        public HomeController(IUnitOfWork unitOfWork)
+        public HomeController(IMediator mediator)
         {
-            _unitOfWork = unitOfWork;
+            _mediator = mediator;
         }
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()  
         {
-            var items = _unitOfWork.ItemRepository.GetAll();
+            var query = new GetItemListQuery();
+            var items = await _mediator.Send(query);
 
             var viewModel = new ItemViewModel
             {

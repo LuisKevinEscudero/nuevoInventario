@@ -1,4 +1,5 @@
-﻿using Inventario.Repository;
+﻿using Inventario.Models;
+using Inventario.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,8 @@ namespace Inventario.UnitOfWork
         ItemModelRepository ItemModelRepository { get; }
         ItemCategoryRepository ItemCategoryRepository { get; }
         void Save();
-        Task<int> SaveChangesAsync();
+        void Reset();
+        void Reset(ApplicationDbContext _context);
     }
 
 

@@ -55,19 +55,25 @@ namespace Inventario.UnitOfWork
             }
         }
 
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
-
         public void Save()
         {
             _context.SaveChanges();
         }
 
-        public async Task<int> SaveChangesAsync()
+        public void Reset()
         {
-            return await _context.SaveChangesAsync();
+            Reset(_context);
+        }
+
+        public void Reset(ApplicationDbContext _context)
+        {
+            Dispose();
+            _context = new ApplicationDbContext();
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
         }
     }
 
