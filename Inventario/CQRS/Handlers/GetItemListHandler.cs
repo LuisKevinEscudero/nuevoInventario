@@ -18,10 +18,12 @@ namespace Inventario.CQRS.Handlers
         public GetItemListHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-        }  
+        }
         public Task<List<Item>> Handle(GetItemListQuery request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_unitOfWork.ItemRepository.GetAll());
+            var items = _unitOfWork.ItemRepository.GetAll().ToList();
+            return Task.FromResult(items);
         }
+
     }
 }

@@ -8,6 +8,9 @@ using MediatR;
 using Inventario.CQRS.Queries;
 using System.Threading.Tasks;
 using Inventario.CQRS.Commands;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Inventario.Controllers
 {
@@ -15,10 +18,12 @@ namespace Inventario.Controllers
     {
 
         private readonly IMediator _mediator;
-
+        private readonly HttpClient _client;
         public ItemsController(IMediator mediator)
         {
             _mediator = mediator;
+            _client = new HttpClient();
+            _client.BaseAddress = new Uri("https://localhost:44377"); // URL de la API
         }
 
         public ActionResult Index()
@@ -120,9 +125,30 @@ namespace Inventario.Controllers
             }
             else
             {
-                var itemInDb = await _mediator.Send(new GetItemByIdQuery(item.Id));
+                var url = $"api/items/{item.Id}"; // URL del método PUT de la API
+                var json = JsonConvert.SerializeObject(item); // Serializar el objeto a JSON
+                var content = new StringContent(json, Encoding.UTF8, "application/json"); // Crear el contenido de la solicitud
+                var response = await _client.PutAsync(url, content); // Llamada al método PUT de la API
+
+                if (response.IsSuccessStatusCode)
+                {
+                    using (StreamWriter writer = new StreamWriter(@"C:\Users\luiskevin.escudero\Desktop\bien-log.txt"))
+                    {
+                        writer.WriteLine("bien");
+                    }
+                }
+                else
+                {
+                    using (StreamWriter writer = new StreamWriter(@"C:\Users\luiskevin.escudero\Desktop\mal-log.txt"))
+                    {
+                        writer.WriteLine("mal");
+                    }
+                }
+                /*var itemInDb = await _mediator.Send(new GetItemByIdQuery(item.Id));
+                
                 var listModel = await _mediator.Send(new GetItemsModelQuery());
                 var modelInDb = listModel.FirstOrDefault(m => m.Id == item.IdModel);
+                
                 var listCategory = await _mediator.Send(new GetItemsCategoryQuery());
                 var categoryInDb = listCategory.FirstOrDefault(c => c.Id == item.IdCategory);
 
@@ -140,28 +166,48 @@ namespace Inventario.Controllers
                 itemInDb.Price = item.Price;
                 itemInDb.Notes = item.Notes;
                 itemInDb.Quantity = item.Quantity;
-
+                string path = @"C:\Users\luiskevin.escudero\Desktop\props-log.txt";
+                using (StreamWriter writer = new StreamWriter(path))
+                {
+                    writer.WriteLine("id: " + item.Id);
+                    writer.WriteLine("name: " + item.Name);
+                    writer.WriteLine("description: " + item.Description);
+                    writer.WriteLine("quantity: " + item.Quantity);
+                    writer.WriteLine("lastUpdated: " + item.LastUpdated);
+                    writer.WriteLine("idCategory: " + item.IdCategory);
+                    writer.WriteLine("category: " + categoryInDb.Name);
+                    writer.WriteLine("brand: " + item.Brand);
+                    writer.WriteLine("idModel: " + item.IdModel);
+                    writer.WriteLine("model: " + modelInDb.Name);
+                    writer.WriteLine("serialNumber: " + item.SerialNumber);
+                    writer.WriteLine("location: " + item.Location);
+                    writer.WriteLine("status: " + item.Status);
+                    writer.WriteLine("notes: " + item.Notes);
+                    writer.WriteLine("addDate: " + item.AddDate);
+                    writer.WriteLine("stock: " + item.Stock);
+                    writer.WriteLine("price: " + item.Price);
+                }
                 var updateItemCommand = new UpdateItemCommand(
-                   itemInDb.Id,
-                   itemInDb.Name,
-                   itemInDb.Description,
-                   itemInDb.Quantity,
-                   itemInDb.LastUpdated,
-                   itemInDb.Category.Id,
-                   itemInDb.Category,
-                   itemInDb.Brand,
-                   itemInDb.Model.Id,
-                   itemInDb.Model,
-                   itemInDb.SerialNumber,
-                   itemInDb.Location,
-                   itemInDb.Status,
-                   itemInDb.Notes,
-                   itemInDb.AddDate,
-                   itemInDb.Stock,
-                   itemInDb.Price
+                   item.Id,
+                   item.Name,
+                   item.Description,
+                   item.Quantity,
+                   item.LastUpdated,
+                   item.IdCategory,
+                   item.Category,
+                   item.Brand,
+                   item.IdModel,
+                   item.Model,
+                   item.SerialNumber,
+                   item.Location,
+                   item.Status,
+                   item.Notes,
+                   item.AddDate,
+                   item.Stock,
+                   item.Price
                  );
                
-                await _mediator.Send(updateItemCommand);
+                await _mediator.Send(updateItemCommand);*/
             }
             return RedirectToAction("Index", "Items");
         }

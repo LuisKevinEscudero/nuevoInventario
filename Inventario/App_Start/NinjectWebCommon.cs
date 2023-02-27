@@ -12,7 +12,6 @@ using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using Ninject;
 using Ninject.Web.Common;
 using Ninject.Web.Common.WebHost;
-using System.Web.Http.Controllers;
 
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(Inventario.App_Start.NinjectWebCommon), "Start")]
@@ -81,11 +80,7 @@ namespace Inventario.App_Start
 
             kernel.Bind<ServiceFactory>().ToMethod(ctx => t => ctx.Kernel.TryGet(t));
 
-            //kernel.Bind<Controllers.API.ItemsController>().ToSelf()
-            //    .WithConstructorArgument("mediator", ctx => ctx.Kernel.Get<IMediator>());
-
             kernel.Bind<System.Web.Http.Dispatcher.IHttpControllerActivator>().To<NinjectHttpControllerActivator>().InSingletonScope();
-
 
             kernel.Bind<Controllers.API.ItemsController>().ToSelf().InRequestScope();
 
@@ -94,30 +89,6 @@ namespace Inventario.App_Start
            
             kernel.Bind<HomeController>()
                 .ToSelf().WithConstructorArgument("mediator", ctx => ctx.Kernel.Get<IMediator>());
-
-
-
-            //kernel.Bind<IRequestHandler<GetItemListQuery, List<Item>>>()
-            //    .To<GetItemListHandler>()
-            //    .InSingletonScope();
-            //kernel.Bind<IRequestHandler<GetItemByIdQuery, Item>>()
-            //    .To<GetItemByIdHandler>()
-            //    .InSingletonScope();
-            //kernel.Bind<IRequestHandler<InsertItemCommand, Item>>()
-            //    .To<InsertItemHandler>()
-            //    .InSingletonScope();
-            //kernel.Bind<IRequestHandler<GetItemsModelQuery, List<ItemModel>>>()
-            //    .To<GetItemsModelListHandler>()
-            //    .InSingletonScope();
-            //kernel.Bind<IRequestHandler<GetItemsCategoryQuery, List<ItemCategory>>>()
-            //    .To<GetItemsCategoryListHandler>()
-            //    .InSingletonScope();
-            //kernel.Bind<IRequestHandler<UpdateItemCommand, Item>>()
-            //    .To<UpdateItemHandler>()
-            //    .InSingletonScope();
-            //kernel.Bind<IRequestHandler<DeleteItemCommand, Unit>>()
-            //    .To<DeleteItemHandler>()
-            //    .InSingletonScope();
 
             var assembly = Assembly.GetExecutingAssembly();
             var handlerInterface = typeof(IRequestHandler<,>);

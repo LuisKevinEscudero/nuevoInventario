@@ -11,6 +11,7 @@ using Inventario.CQRS.Queries;
 using Inventario.CQRS.Commands;
 using System.Net;
 using System.Net.Http;
+using System.IO;
 
 namespace Inventario.Controllers.API
 {

@@ -31,10 +31,9 @@ namespace Inventario.CQRS.Handlers
 
             // Delete the item from the database
             _unitOfWork.ItemRepository.Delete(item);
-             _unitOfWork.Save();
+            _unitOfWork.SaveAsync();
 
             return Task.FromResult(Unit.Value);
         }
     }
-
 }

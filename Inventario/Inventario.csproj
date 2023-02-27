@@ -452,6 +452,10 @@
     <Compile Include="Migrations\202302071143320_newRecodsToUnitOfWork.designer.cs">
       <DependentUpon>202302071143320_newRecodsToUnitOfWork.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202302271048511_changeBadRecords.cs" />
+    <Compile Include="Migrations\202302271048511_changeBadRecords.designer.cs">
+      <DependentUpon>202302271048511_changeBadRecords.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
@@ -825,6 +829,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202302071143320_newRecodsToUnitOfWork.resx">
       <DependentUpon>202302071143320_newRecodsToUnitOfWork.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202302271048511_changeBadRecords.resx">
+      <DependentUpon>202302271048511_changeBadRecords.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

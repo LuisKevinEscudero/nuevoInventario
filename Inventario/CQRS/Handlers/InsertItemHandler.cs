@@ -45,7 +45,7 @@ namespace Inventario.CQRS.Handlers
                 Price = request.Price
             };
             _unitOfWork.ItemRepository.Add(item);
-            _unitOfWork.Save();
+            _unitOfWork.SaveAsync();
             return Task.FromResult(item);
         }
     }

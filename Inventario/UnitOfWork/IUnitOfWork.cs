@@ -14,6 +14,8 @@ namespace Inventario.UnitOfWork
         ItemModelRepository ItemModelRepository { get; }
         ItemCategoryRepository ItemCategoryRepository { get; }
         void Save();
+        //void SaveAsync();
+        Task SaveAsync();
         void Reset();
         void Reset(ApplicationDbContext _context);
     }

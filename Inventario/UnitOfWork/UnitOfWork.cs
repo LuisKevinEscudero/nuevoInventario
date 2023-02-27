@@ -60,6 +60,16 @@ namespace Inventario.UnitOfWork
             _context.SaveChanges();
         }
 
+        /*public void SaveAsync()
+        {
+            _context.SaveChangesAsync();
+        }*/
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+
         public void Reset()
         {
             Reset(_context);

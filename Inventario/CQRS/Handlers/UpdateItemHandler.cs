@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Web;
 using Inventario.Models;
+using System.IO;
 
 namespace Inventario.CQRS.Handlers
 {
@@ -29,7 +30,7 @@ namespace Inventario.CQRS.Handlers
             {
                 throw new Exception("Item not found");
             }
-
+            
             item.Name = request.Name ?? item.Name;
             item.Description = request.Description ?? item.Description;
             item.Quantity = request.Quantity > 0 ? request.Quantity : item.Quantity;
@@ -45,12 +46,11 @@ namespace Inventario.CQRS.Handlers
             item.Notes = request.Notes ?? item.Notes;
             item.AddDate = request.AddDate != default ? request.AddDate : item.AddDate;
             item.Stock = request.Stock > 0 ? request.Stock : item.Stock;
-            item.Price = request.Price > 0 ? request.Price : item.Price;
+            item.Price = request.Price > 0 ? request.Price : item.Price;         
 
-            _unitOfWork.Save();
+            _unitOfWork.SaveAsync();
 
             return Task.FromResult(item);
         }
     }
-
 }
