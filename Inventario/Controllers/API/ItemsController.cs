@@ -24,78 +24,112 @@ namespace Inventario.Controllers.API
             _mediator = mediator;
         }
 
-
         [HttpGet]
         public async Task<List<ItemDTO>> GetItems()
         {
-            var query = new GetItemListQuery();
-            var items = await _mediator.Send(query);
-
-            if (items == null)
+            try
             {
-                var message = new HttpError("[GETALLITEMS] Items not found");
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
-            }
-            return items.Select(item => ItemMapper.ToDTO(item)).ToList();
-        }
+                var items = await _mediator.Send(new GetItemListQuery());
 
+                if (items == null)
+                {
+                    var message = new HttpError("[GETALLITEMS] Items not found");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
+                return items.Select(item => ItemMapper.ToDTO(item)).ToList();
+            }
+            catch (Exception ex)
+            {
+                var message = new HttpError($"[GETALLITEMS] An error occurred while processing the request: {ex.Message}");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message));
+            }
+        }
 
         [HttpGet]
         public async Task<ItemDTO> GetItem(int id)
         {
-            var query = new GetItemByIdQuery(id);
-            var item = await _mediator.Send(query);
-
-
-            if (item == null)
+            try
             {
-                var message = new HttpError("[GETITEMBYID] Item not found with id: " + id);
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
-            }
+                if (id <= 0)
+                {
+                    var message = new HttpError($"[GETITEMBYID] Invalid id parameter: {id}");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, message));
+                }
 
-            return ItemMapper.ToDTO(item);
+                var item = await _mediator.Send(new GetItemByIdQuery(id));
+
+                if (item == null)
+                {
+                    var message = new HttpError($"[GETITEMBYID] Item not found with id: {id}");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
+                return ItemMapper.ToDTO(item);
+            }
+            catch (Exception ex)
+            {
+                var message = new HttpError($"[GETITEMBYID] An error occurred while processing the request: {ex.Message}");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message));
+            }
         }
+
 
 
         [HttpGet]
         [Route("api/items/models")]
         public async Task<List<ItemModel>> GetItemsModel()
         {
-            var query = new GetItemsModelQuery();
-            var itemsModel = await _mediator.Send(query);
-
-            if (itemsModel == null)
+            try
             {
-                var message = new HttpError("[ITEMSMODEL] itemsModel not found");
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
-            }
+                var itemsModel = await _mediator.Send(new GetItemsModelQuery());
 
-            return itemsModel;
+                if (itemsModel == null)
+                {
+                    var message = new HttpError("[ITEMSMODEL] itemsModel not found");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
+                return itemsModel;
+            }
+            catch (Exception ex)
+            {
+                var message = new HttpError($"[ITEMSMODEL] An error occurred while processing the request: {ex.Message}");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message));
+            }
         }
+
 
         [HttpGet]
         [Route("api/items/categories")]
         public async Task<List<ItemCategory>> GetItemsCategory()
         {
-            var query = new GetItemsCategoryQuery();
-            var itemsCategory = await _mediator.Send(query);
-
-            if ( itemsCategory == null)
+            try
             {
-                var message = new HttpError("[ITEMSCATEGORY] itemsCategory not found");
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
-            }
+                var itemsCategory = await _mediator.Send(new GetItemsCategoryQuery());
 
-            return itemsCategory;
+                if (itemsCategory == null)
+                {
+                    var message = new HttpError("[ITEMSCATEGORY] itemsCategory not found");
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
+                return itemsCategory;
+            }
+            catch (Exception ex)
+            {
+                var message = new HttpError($"[ITEMSCATEGORY] An error occurred while processing the request: {ex.Message}");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message));
+            }
         }
+
 
 
         [HttpPost]
         //[Authorize(Roles = RoleName.Admin)]
         public async Task<Item> CreateItem(Item item)
         {
-            var query = new GetItemsModelQuery();
-            var itemsModel = await _mediator.Send(query);
+            var itemsModel = await _mediator.Send(new GetItemsModelQuery());
 
             if (itemsModel == null)
             {
@@ -103,8 +137,7 @@ namespace Inventario.Controllers.API
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
             }
 
-            var query2 = new GetItemsCategoryQuery();
-            var itemsCategory = await _mediator.Send(query2);
+            var itemsCategory = await _mediator.Send(new GetItemsCategoryQuery());
 
             if (itemsCategory == null)
             {
@@ -115,13 +148,11 @@ namespace Inventario.Controllers.API
             var category = itemsCategory.SingleOrDefault(c => c.Id == item.IdCategory);
             var model = itemsModel.SingleOrDefault(m => m.Id == item.IdModel);
 
-
             if (category == null)
             {
                 var message = new HttpError("[CREATE]Category not found with id: " + item.IdCategory);
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
             }
-
 
             if (model == null)
             {
@@ -276,20 +307,28 @@ namespace Inventario.Controllers.API
 
         [HttpDelete]
         //[Authorize(Roles = RoleName.Admin)]
-        public async Task<Unit> DeleteItem(int id) 
+        public async Task<Unit> DeleteItem(int id)
         {
-
-            var queryItemById = new GetItemByIdQuery(id);
-            var itemInDb = await _mediator.Send(queryItemById);
-
-            if (itemInDb == null)
+            try
             {
-                var message = new HttpError("[DELETE] itemInDb not found with id: " + id);
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
-            }
+                var itemInDb = await _mediator.Send(new GetItemByIdQuery(id));
 
-            var deleteItemCommand = new DeleteItemCommand(itemInDb.Id);
-            return await _mediator.Send(deleteItemCommand);
+                if (itemInDb == null)
+                {
+                    var message = new HttpError("[DELETE] itemInDb not found with id: " + id);
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                }
+
+                await _mediator.Send(new DeleteItemCommand(itemInDb.Id));
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions here
+                var message = new HttpError("[DELETE] An error occurred while deleting item with id " + id + $": {ex.Message}");
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message));
+            }
         }
+
     }
 }

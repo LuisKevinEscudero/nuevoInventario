@@ -14,14 +14,14 @@
     }
 
     .item-card {
-        background-color: lightblue;
-        color: white;
+        background-color: #3123AD;
+        color: #E4B57E;
         text-align: center;
         padding: 10px;
         box-shadow: 2px 2px 5px #ccc;
         width: calc(50% - 20px);
         height: 150px;
-        border: 1px solid black;
+        border: 1px solid #63607D;
         margin: 10px;
         float: left;
         display: inline-block;
@@ -32,6 +32,7 @@
             font-weight: bold;
         }
 </style>
+
 
 
 <div id="itemsContainer">
@@ -46,11 +47,11 @@
         var randomItems = [];
         for (var i = 0; i < 2; i++) {
             var randomIndex = Math.floor(Math.random() * items.length);
-            
+
             randomItems.push(items[randomIndex]);
             items.splice(randomIndex, 1);
         }
-        
+
         for (var i = 0; i < randomItems.length; i++) {
             console.log(randomItems[i]);
             var itemDiv = document.createElement("div");

@@ -4,6 +4,44 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    h2 {
+        color: #3123AD;
+    }
+
+    #items {
+        border: 1px solid #63607D;
+    }
+
+        #items thead {
+            background-color: #4387E0;
+            color: white;
+        }
+
+        #items tbody tr:nth-child(even) {
+            background-color: #E4B57E;
+        }
+
+        #items tbody tr:hover {
+            background-color: #AD5923;
+            color: white;
+        }
+
+        #items a {
+            color: white;
+        }
+
+    .btn-primary {
+        background-color: #4387E0;
+        border-color: #4387E0;
+    }
+
+        .btn-primary:hover {
+            background-color: #3123AD;
+            border-color: #3123AD;
+        }
+</style>
+
 <h2>Index</h2>
 @Html.ActionLink("New Item", "New", "Items", null, new { @class = "btn btn-primary" })
 <table id="items" class="table table-bordered table-hover">

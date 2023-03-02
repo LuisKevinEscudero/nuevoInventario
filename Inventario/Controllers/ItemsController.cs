@@ -11,6 +11,7 @@ using Inventario.CQRS.Commands;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Text;
+using System.Net;
 
 namespace Inventario.Controllers
 {
@@ -22,8 +23,10 @@ namespace Inventario.Controllers
         public ItemsController(IMediator mediator)
         {
             _mediator = mediator;
-            _client = new HttpClient();
-            _client.BaseAddress = new Uri("https://localhost:44377"); // URL de la API
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri("https://localhost:44377") // URL de la API
+            };
         }
 
         public ActionResult Index()
@@ -34,39 +37,83 @@ namespace Inventario.Controllers
                 return View("ReadOnlyList");
         }
 
-        public async Task<ActionResult> Detail(int id) 
+        public async Task<ActionResult> Detail(int id)
         {
-            var query = new GetItemByIdQuery(id);
-            var item = await _mediator.Send(query);
-
-            
-
-            if (item == null)
-                return HttpNotFound();
-            return View(item);
-        }
-
-        //[Authorize(Roles = RoleName.Admin)]
-        public async Task<ActionResult> New() 
-        {
-            var query = new GetItemsModelQuery();
-            var itemModels = await _mediator.Send(query);
-
-            var query1 = new GetItemsCategoryQuery();
-            var itemCategories = await _mediator.Send(query1);
-
-            var viewModel = new ItemFormViewModel
+            if (!int.TryParse(id.ToString(), out int parsedId) || parsedId <= 0)
             {
-                Item = new Item(),
-                ItemModels = itemModels,
-                ItemCategories = itemCategories
-            };
-            return View("ItemForm", viewModel);
+                throw new ArgumentException("[DETAIL] Invalid id parameter", nameof(id));
+            }
+
+            try
+            {
+                if (_mediator == null)
+                {
+                    throw new Exception("[DETAIL] _mediator is null");
+                }
+
+                var item = await _mediator.Send(new GetItemByIdQuery(id));
+
+                if (item == null || item.Id != id)
+                {
+                    throw new Exception($"[DETAIL] Item not found with id: {id}");
+                }
+
+                return View(item);
+            }
+            catch (ArgumentException ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, $"[DETAIL] An error occurred while processing the request: {ex.Message}");
+            }
         }
+
+
+        [Authorize(Roles = RoleName.Admin)]
+        public async Task<ActionResult> New()
+        {
+            try
+            {
+                if (_mediator == null)
+                {
+                    throw new Exception("[NEW] _mediator is null");
+                }
+
+                var itemModels = await _mediator.Send(new GetItemsModelQuery());
+
+                if (itemModels == null || !itemModels.Any())
+                {
+                    throw new Exception("[NEW] No item models found");
+                }
+
+                var itemCategories = await _mediator.Send(new GetItemsCategoryQuery());
+
+                if (itemCategories == null || !itemCategories.Any())
+                {
+                    throw new Exception("[NEW] No item categories found");
+                }
+
+                var viewModel = new ItemFormViewModel
+                {
+                    Item = new Item(),
+                    ItemModels = itemModels,
+                    ItemCategories = itemCategories
+                };
+
+                return View("ItemForm", viewModel);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, $"[NEW] An error occurred while processing the request: {ex.Message}");
+            }
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //[Authorize(Roles = RoleName.Admin)]
+        [Authorize(Roles = RoleName.Admin)]
         public async Task<ActionResult> Save(Item item)
         {
             if (!ModelState.IsValid)

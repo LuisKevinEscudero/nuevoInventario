@@ -4,6 +4,51 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    h2 {
+        color: #3123AD;
+    }
+
+    #items {
+        border: 1px solid #63607D;
+    }
+
+        #items thead {
+            background-color: #3123AD;
+            color: white;
+        }
+
+        #items tbody tr {
+            background-color: #E4B57E;
+            color: #63607D;
+        }
+
+            #items tbody tr:nth-child(even) {
+                background-color: #AD5923;
+                color: white;
+            }
+
+            #items tbody tr:hover {
+                background-color: #3123AD;
+                color: white;
+            }
+
+        #items a {
+            color: #3123AD;
+        }
+
+    .btn-primary {
+        background-color: #4387E0;
+        border-color: #4387E0;
+    }
+
+        .btn-primary:hover {
+            background-color: #3123AD;
+            border-color: #3123AD;
+        }
+</style>
+
+
 <h2>Index</h2>
 
 <table id="items" class="table table-bordered table-hover">
@@ -37,5 +82,5 @@
             ]
         });
 
-    </script>    
+    </script>
 }
